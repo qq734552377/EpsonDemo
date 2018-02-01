@@ -311,6 +311,7 @@ public class EpsonParseDemo {
                 String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_bit_" + i + ".bmp";
                 EpsonBitData one = bitPicLists.get(i);
                 saveAsBitmapWithByteData(one.getByteDatas(), one.getWith(), bmpPath);
+//                saveAsBitmapWithByteDataUse1Bit(one.getByteDatas(), one.getWith(), bmpPath);
                 bmpPaths.add(bmpPath);
             }
 //            fis.close();
@@ -398,6 +399,55 @@ public class EpsonParseDemo {
             // TODO: handle exception
         }
     }
+
+
+    public static void saveAsBitmapWithByteDataUse1Bit(byte[] datas ,int with ,String path) {
+        FileOutputStream fos = null;
+        int nBmpWidth = with;
+
+        try {
+            fos = new FileOutputStream(new File(path));
+
+            int line_byte_num = nBmpWidth/8;
+            int hHeight = datas.length/line_byte_num;
+            int wWidth = ((nBmpWidth + 31)/32)*32;
+            int bufferSize =  hHeight * wWidth / 8;
+
+            fos.write(EpsonPicture.addBMPImageHeader(bufferSize + 62));
+            fos.write(EpsonPicture.addBMPImageInfosHeader(wWidth ,hHeight,datas.length));
+            fos.write(EpsonPicture.addBMPImageColorTable());
+            // 像素扫描
+            byte bmpData[] = new byte[bufferSize];
+
+            for (int i = 0; i < hHeight; i++) {
+                for (int j = 0; j < wWidth / 8 ; j++) {
+                    int srcDataIndex = i * line_byte_num + j;
+                    int destDataIndex = (hHeight - i - 1) * (wWidth / 8) + j;
+
+                    if(j < line_byte_num) {
+                        bmpData[destDataIndex] = datas[srcDataIndex];
+                    }else{
+                        bmpData[destDataIndex] = 0x00;
+                    }
+
+                }
+            }
+
+
+
+            fos.write(bmpData);
+            fos.flush();
+            fos.close();
+
+        } catch (Exception e) {
+            // TODO: handle exception
+
+            System.out.println(e.toString());
+        }
+
+
+    }
+
 
     protected static void writeWord(FileOutputStream stream, int value) throws IOException {
         byte[] b = new byte[2];

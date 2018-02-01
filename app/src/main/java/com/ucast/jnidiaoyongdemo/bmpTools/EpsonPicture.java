@@ -139,7 +139,7 @@ public class EpsonPicture {
     }
 
     /**
-     * 保存图片
+     * 保存图片 位图深度为24
      *
      * @param bitmap
      * @return
@@ -160,10 +160,11 @@ public class EpsonPicture {
             FileOutputStream fileos = new FileOutputStream(myCaptureFile);
             // bmp文件头
             int bfType = 0x4d42;
-            long bfSize = 14 + 40 + bufferSize;
+            long bfOffBits = 14 + 40;
+            long bfSize = bfOffBits + bufferSize;
             int bfReserved1 = 0;
             int bfReserved2 = 0;
-            long bfOffBits = 14 + 40;
+
             // 保存bmp文件头ͷ
             writeWord(fileos, bfType);
             writeDword(fileos, bfSize);
@@ -227,6 +228,222 @@ public class EpsonPicture {
         return ALBUM_PATH + BIT_NAME;
     }
 
+    /**
+     * 保存图片 位图深度为1
+     *
+     * @param bitmap
+     * @return
+     */
+    public static String saveBmpUse1Bit(Bitmap bitmap){
+        if (bitmap == null)
+            return null;
+        int w = bitmap.getWidth(), h = bitmap.getHeight();
+        int[] pixels=new int[w*h];
+        bitmap.getPixels(pixels, 0, w, 0, 0, w, h);//取得BITMAP的所有像素点
+
+        int line_byte_num = w/8;
+        int saveBmpHeight = h;
+        int saveBmpWith = ((w + 31)/32) * 32;
+        int bufferSize =  saveBmpHeight * saveBmpWith / 8;
+
+        byte[] datas = addBMP_RGB_888(pixels,w,h);
+        byte[] header = addBMPImageHeader(62 + bufferSize );
+        byte[] infos = addBMPImageInfosHeader(saveBmpWith, saveBmpHeight,bufferSize);
+        byte[] colortable = addBMPImageColorTable();
+
+        // 像素扫描
+        byte bmpData[] = new byte[bufferSize];
+
+        for (int i = 0; i < saveBmpHeight; i++) {
+            for (int j = 0; j < saveBmpWith / 8 ; j++) {
+                int srcDataIndex = i * line_byte_num + j;
+                int destDataIndex = i * (saveBmpWith / 8) + j;
+
+                if(j < line_byte_num) {
+                    bmpData[destDataIndex] = datas[srcDataIndex];
+                }else{
+                    bmpData[destDataIndex] = 0x00;
+                }
+
+            }
+        }
+
+        try {
+            File dirFile = new File(ALBUM_PATH);
+            if (!dirFile.exists()) {
+                dirFile.mkdir();
+            }
+            File myCaptureFile = new File(ALBUM_PATH + BIT_NAME);
+            FileOutputStream fileos = new FileOutputStream(myCaptureFile);
+
+            fileos.write(header);
+            fileos.write(infos);
+            fileos.write(colortable);
+            fileos.write(bmpData);
+
+            fileos.flush();
+            fileos.close();
+
+        } catch (Exception e){
+            return null;
+        }
+        return ALBUM_PATH + BIT_NAME;
+    }
+
+
+    // BMP文件头
+    public static byte[] addBMPImageHeader(int size) {
+        byte[] buffer = new byte[14];
+        buffer[0] = 0x42;
+        buffer[1] = 0x4D;
+        buffer[2] = (byte) (size >> 0);
+        buffer[3] = (byte) (size >> 8);
+        buffer[4] = (byte) (size >> 16);
+        buffer[5] = (byte) (size >> 24);
+        buffer[6] = 0x00;
+        buffer[7] = 0x00;
+        buffer[8] = 0x00;
+        buffer[9] = 0x00;
+        //  buffer[10] = 0x36;
+        buffer[10] = 0x3E;
+        buffer[11] = 0x00;
+        buffer[12] = 0x00;
+        buffer[13] = 0x00;
+        return buffer;
+    }
+    // BMP文件信息头
+    public static byte[] addBMPImageInfosHeader(int w, int h, int size) {
+        byte[] buffer = new byte[40];
+        buffer[0] = 0x28;
+        buffer[1] = 0x00;
+        buffer[2] = 0x00;
+        buffer[3] = 0x00;
+
+        buffer[4] = (byte) (w >> 0);
+        buffer[5] = (byte) (w >> 8);
+        buffer[6] = (byte) (w >> 16);
+        buffer[7] = (byte) (w >> 24);
+
+        buffer[8] = (byte) (h >> 0);
+        buffer[9] = (byte) (h >> 8);
+        buffer[10] = (byte) (h >> 16);
+        buffer[11] = (byte) (h >> 24);
+
+        buffer[12] = 0x01;
+        buffer[13] = 0x00;
+
+        buffer[14] = 0x01;
+        buffer[15] = 0x00;
+
+        buffer[16] = 0x00;
+        buffer[17] = 0x00;
+        buffer[18] = 0x00;
+        buffer[19] = 0x00;
+
+        buffer[20] = (byte) (size >> 0);
+        buffer[21] = (byte) (size >> 8);
+        buffer[22] = (byte) (size >> 16);
+        buffer[23] = (byte) (size >> 24);
+
+        //  buffer[24] = (byte) 0xE0;
+        //  buffer[25] = 0x01;
+        buffer[24] = (byte) 0xC3;
+        buffer[25] = 0x0E;
+        buffer[26] = 0x00;
+        buffer[27] = 0x00;
+
+        //  buffer[28] = 0x02;
+        //  buffer[29] = 0x03;
+        buffer[28] = (byte) 0xC3;
+        buffer[29] = 0x0E;
+        buffer[30] = 0x00;
+        buffer[31] = 0x00;
+
+        buffer[32] = 0x00;
+        buffer[33] = 0x00;
+        buffer[34] = 0x00;
+        buffer[35] = 0x00;
+
+        buffer[36] = 0x00;
+        buffer[37] = 0x00;
+        buffer[38] = 0x00;
+        buffer[39] = 0x00;
+        return buffer;
+    }
+    //bmp调色板
+    public static byte[] addBMPImageColorTable() {
+        byte[] buffer = new byte[8];
+        buffer[0] = (byte) 0xFF;
+        buffer[1] = (byte) 0xFF;
+        buffer[2] = (byte) 0xFF;
+        buffer[3] = 0x00;
+
+        buffer[4] = 0x00;
+        buffer[5] = 0x00;
+        buffer[6] = 0x00;
+        buffer[7] = 0x00;
+        return buffer;
+    }
+
+    //将bitmap对象中像素数据转换成位图深度为1的bmp数据
+    private static byte[] addBMP_RGB_888(int[] b, int w, int h) {
+        int len = w*h;
+        int bufflen = 0;
+        byte[] tmp = new byte[3];
+        int index = 0,bitindex = 1;
+
+        if (w*h % 8 != 0)//将8字节变成1个字节,不足补0
+        {
+            bufflen = w*h/ 8 + 1;
+        }
+        else
+        {
+            bufflen = w*h/ 8;
+        }
+        if (bufflen % 4 != 0)//BMP图像数据大小，必须是4的倍数，图像数据大小不是4的倍数时用0填充补足
+        {
+            bufflen = bufflen + bufflen%4;
+        }
+
+        byte[] buffer = new byte[bufflen];
+
+        for (int i = len - 1; i >= w; i -= w) {
+            // DIB文件格式最后一行为第一行，每行按从左到右顺序
+            int end = i, start = i - w + 1;
+            for (int j = start; j <= end; j++) {
+
+                tmp[0] = (byte) (b[j] >> 0);
+                tmp[1] = (byte) (b[j] >> 8);
+                tmp[2] = (byte) (b[j] >> 16);
+
+                String hex = "";
+                for (int g = 0; g < tmp.length; g++) {
+                    String temp = Integer.toHexString(tmp[g] & 0xFF);
+                    if (temp.length() == 1) {
+                        temp = "0" + temp;
+                    }
+                    hex = hex + temp;
+                }
+
+                if (bitindex > 8)
+                {
+                    index += 1;
+                    bitindex = 1;
+                }
+
+                if (!hex.equals("ffffff"))
+                {
+                    buffer[index] = (byte) (buffer[index] | (0x01 << 8-bitindex));
+                }
+                bitindex++;
+            }
+        }
+
+        return buffer;
+    }
+
+
+
     protected static void writeWord(FileOutputStream stream, int value) throws IOException {
         byte[] b = new byte[2];
         b[0] = (byte) (value & 0xff);
@@ -252,8 +469,36 @@ public class EpsonPicture {
         stream.write(b);
     }
 
+    /**
+     * 8位位图的颜色调板
+     */
+    protected static byte[] addBMP8ImageInfosHeaderTable() {
+        byte[] buffer = new byte[256 * 4];
 
+        //生成颜色表
+        for (int i = 0; i < 256; i++) {
+            buffer[0 + 4 * i] = (byte) i;   //Blue
+            buffer[1 + 4 * i] = (byte) i;   //Green
+            buffer[2 + 4 * i] = (byte) i;   //Red
+            buffer[3 + 4 * i] = (byte) 0x00;   //保留值
+        }
 
+        return buffer;
+    }
+    //单色位图的颜色调板
+    private static void addBMPImageColorTable(FileOutputStream stream) throws IOException{
+        byte[] buffer = new byte[8];
+        buffer[0] = (byte) 0xFF;
+        buffer[1] = (byte) 0xFF;
+        buffer[2] = (byte) 0xFF;
+        buffer[3] = 0x00;
+
+        buffer[4] = 0x00;
+        buffer[5] = 0x00;
+        buffer[6] = 0x00;
+        buffer[7] = 0x00;
+        stream.write(buffer);
+    }
 
     public static void strToBmp() throws IOException {
         String path = ALBUM_PATH + BIT_NAME;
