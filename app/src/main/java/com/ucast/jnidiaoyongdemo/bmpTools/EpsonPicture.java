@@ -79,7 +79,7 @@ public class EpsonPicture {
 
         canvas.save(Canvas.ALL_SAVE_FLAG);
         canvas.restore();
-        String path = saveBmp(bmp);
+        String path = saveBmpUse1Bit(bmp);
         return path;
     }
 
@@ -237,16 +237,15 @@ public class EpsonPicture {
     public static String saveBmpUse1Bit(Bitmap bitmap){
         if (bitmap == null)
             return null;
-        int w = bitmap.getWidth(), h = bitmap.getHeight();
-        int[] pixels=new int[w*h];
-        bitmap.getPixels(pixels, 0, w, 0, 0, w, h);//取得BITMAP的所有像素点
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
 
-        int line_byte_num = w/8;
+        int line_byte_num = w / 8;
         int saveBmpHeight = h;
         int saveBmpWith = ((w + 31)/32) * 32;
         int bufferSize =  saveBmpHeight * saveBmpWith / 8;
 
-        byte[] datas = addBMP_RGB_888(pixels,w,h);
+        byte[] datas = addBMP_RGB_888(bitmap);
         byte[] header = addBMPImageHeader(62 + bufferSize );
         byte[] infos = addBMPImageInfosHeader(saveBmpWith, saveBmpHeight,bufferSize);
         byte[] colortable = addBMPImageColorTable();
@@ -273,7 +272,7 @@ public class EpsonPicture {
             if (!dirFile.exists()) {
                 dirFile.mkdir();
             }
-            File myCaptureFile = new File(ALBUM_PATH + BIT_NAME);
+            File myCaptureFile = new File(ALBUM_PATH + "/Ucast/" + System.currentTimeMillis()+".bmp");
             FileOutputStream fileos = new FileOutputStream(myCaptureFile);
 
             fileos.write(header);
@@ -386,22 +385,25 @@ public class EpsonPicture {
     }
 
     //将bitmap对象中像素数据转换成位图深度为1的bmp数据
-    private static byte[] addBMP_RGB_888(int[] b, int w, int h) {
-        int len = w*h;
-        int bufflen = 0;
-        byte[] tmp = new byte[3];
-        int index = 0,bitindex = 1;
+    private static byte[] addBMP_RGB_888(Bitmap bitmap) {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        int len = w * h;
+        int[] b = new int[ len ];
+        bitmap.getPixels(b, 0, w, 0, 0, w, h);//取得BITMAP的所有像素点
 
-        if (w*h % 8 != 0)//将8字节变成1个字节,不足补0
-        {
-            bufflen = w*h/ 8 + 1;
+
+        int bufflen = 0;
+        int[] tmp = new int[3];
+        int index = 0,bitindex = 1;
+        //将8字节变成1个字节,不足补0
+        if (len% 8 != 0){
+            bufflen = len / 8 + 1;
+        } else {
+            bufflen = len / 8;
         }
-        else
-        {
-            bufflen = w*h/ 8;
-        }
-        if (bufflen % 4 != 0)//BMP图像数据大小，必须是4的倍数，图像数据大小不是4的倍数时用0填充补足
-        {
+        //BMP图像数据大小，必须是4的倍数，图像数据大小不是4的倍数时用0填充补足
+        if (bufflen % 4 != 0){
             bufflen = bufflen + bufflen%4;
         }
 
@@ -412,27 +414,16 @@ public class EpsonPicture {
             int end = i, start = i - w + 1;
             for (int j = start; j <= end; j++) {
 
-                tmp[0] = (byte) (b[j] >> 0);
-                tmp[1] = (byte) (b[j] >> 8);
-                tmp[2] = (byte) (b[j] >> 16);
+                tmp[0] = b[j]  & 0x000000FF;
+                tmp[1] = b[j]  & 0x0000FF00;
+                tmp[2] = b[j]  & 0x00FF0000;
 
-                String hex = "";
-                for (int g = 0; g < tmp.length; g++) {
-                    String temp = Integer.toHexString(tmp[g] & 0xFF);
-                    if (temp.length() == 1) {
-                        temp = "0" + temp;
-                    }
-                    hex = hex + temp;
-                }
-
-                if (bitindex > 8)
-                {
+                if (bitindex > 8) {
                     index += 1;
                     bitindex = 1;
                 }
 
-                if (!hex.equals("ffffff"))
-                {
+                if (tmp[0] + tmp[1] +tmp[2] != 0x00FFFFFF) {
                     buffer[index] = (byte) (buffer[index] | (0x01 << 8-bitindex));
                 }
                 bitindex++;

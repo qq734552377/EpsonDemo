@@ -39,6 +39,13 @@ public class EpsonParseDemo {
     public static String printHexString(byte[] b) {
         StringBuilder r = new StringBuilder();
         for (int i = 0; i < b.length; i++) {
+            if(b[i] == 0x00){
+                r.append("00 ");
+                continue;
+            }else if(b[i] == 0xff){
+                r.append("FF ");
+                continue;
+            }
             String hex = Integer.toHexString(b[i] & 0xFF);
             if (hex.length() == 1) {
                 hex = '0' + hex;
@@ -96,7 +103,7 @@ public class EpsonParseDemo {
         List<byte[]> epsonList = new ArrayList<>();
         int index = -1;
         for (int i = 0; i < datas.length; i++) {
-            if (datas[i] == 27 || datas[i] == 28 || datas[i] == 29) {
+            if (datas[i] == 0x1B || datas[i] == 0x1C || datas[i] == 0x1D) {
                 index++;
                 byte[] headBy = addAByte(datas[i], null);
                 epsonList.add(headBy);
@@ -192,8 +199,28 @@ public class EpsonParseDemo {
 
 
                         for (int j = 0; j < b.length; j++) {
-                            if (b[j] == 0x00 || b[j] == 0x01) {
+                            if (b[j] == 0x00 || b[j] == 0x01 || b[j] == 0x11) {
                                 position = j + 1;
+                                datas = new byte[b.length - position];
+                                System.arraycopy(b, position, datas, 0, datas.length);
+
+                                lastEpson = new byte[position];
+                                System.arraycopy(b, 0, lastEpson, 0, position);
+
+                                setPrintAndDataWithEpson(one_data, lastEpson);
+
+                                one_data.datas = new String(datas, "GB18030");
+
+                                if (!one_data.datas.equals("")) {
+                                    printLists.add(one_data);
+                                    one_data = null;
+                                }
+
+                                break;
+                            }
+
+                            if(j > 3){
+                                position = j;
                                 datas = new byte[b.length - position];
                                 System.arraycopy(b, position, datas, 0, datas.length);
 
@@ -236,11 +263,11 @@ public class EpsonParseDemo {
                     break;
             }
         }
-        for (int i = 0; i < printLists.size(); i++) {
-            PrintAndDatas one = printLists.get(i);
-            System.out.println(one.FONT_SIZE_TIMES + "    " + one.FONT_SIZE_TYPE);
-            System.out.println(one.datas);
-        }
+//        for (int i = 0; i < printLists.size(); i++) {
+//            PrintAndDatas one = printLists.get(i);
+//            System.out.println(one.FONT_SIZE_TIMES + "    " + one.FONT_SIZE_TYPE);
+//            System.out.println(one.datas);
+//        }
         return printLists;
     }
 
@@ -310,8 +337,8 @@ public class EpsonParseDemo {
             for (int i = 0; i < bitPicLists.size(); i++) {
                 String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_bit_" + i + ".bmp";
                 EpsonBitData one = bitPicLists.get(i);
-                saveAsBitmapWithByteData(one.getByteDatas(), one.getWith(), bmpPath);
-//                saveAsBitmapWithByteDataUse1Bit(one.getByteDatas(), one.getWith(), bmpPath);
+//                saveAsBitmapWithByteData(one.getByteDatas(), one.getWith(), bmpPath);
+                saveAsBitmapWithByteDataUse1Bit(one.getByteDatas(), one.getWith(), bmpPath);
                 bmpPaths.add(bmpPath);
             }
 //            fis.close();

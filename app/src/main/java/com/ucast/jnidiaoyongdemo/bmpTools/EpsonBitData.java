@@ -24,6 +24,16 @@ public class EpsonBitData {
 		int data_index = -1;
 		for (int i = 0; i < bytes.length; i++) {
 			int temp = -1;
+			if(bytes[i].equals("00")){
+				data_index ++;
+				data[data_index] = 0x00;
+				continue;
+			}else if(bytes[i].equals("FF")){
+				data_index ++;
+				data[data_index] = (byte)0xFF;
+				continue;
+			}
+
 			try {
 				temp = Integer.parseInt(bytes[i].substring(0), 16);
 				data_index ++;

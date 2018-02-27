@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what){
                 case 10:
                     byte[] data = (byte[]) msg.obj;
-                    tv.setText(new String(data));
+//                    tv.setText(new String(data));
                     try {
                         File file = new File(Environment.getExternalStorageDirectory(),
                                 "/ucast/port.txt");
@@ -170,15 +170,24 @@ public class MainActivity extends AppCompatActivity {
                 case 20:
                     String dataString = (String) msg.obj;
                     tv.setText("");
+                    long oldTime = System.currentTimeMillis();
+                    StringBuilder sb = new StringBuilder();
                     try {
                         if(dataString.contains(EpsonParseDemo.startEpsonStr)){
+                            oldTime = System.currentTimeMillis();
                             List<String> paths = EpsonParseDemo.parseEpsonBitData(dataString.trim());
+                            sb.append("解析EPSON生成图片的时间为："+ (System.currentTimeMillis() - oldTime) + "ms\n");
+
                             int pathNum = paths.size();
                             if ( pathNum< 1) {
-                                iv.setImageBitmap(BitmapFactory.decodeFile(paths.get(0)));
+                                Bitmap bit = BitmapFactory.decodeFile(paths.get(0));
+                                tv.setText(sb.toString());
+                                String path = EpsonPicture.saveBmpUse1Bit(SomeBitMapHandleWay.addHeadAndEndCutPosition(bit));
+                                iv.setImageBitmap(BitmapFactory.decodeFile(path));
                                 return;
                             }
                             Bitmap allBitMap = null;
+                            oldTime = System.currentTimeMillis();
                             for (int i = 0; i < pathNum; i++) {
                                 if (allBitMap == null){
                                     allBitMap= BitmapFactory.decodeFile(paths.get(i));
@@ -191,20 +200,28 @@ public class MainActivity extends AppCompatActivity {
                                 allBitMap = SomeBitMapHandleWay.mergeBitmap_TB(allBitMap,backBitMap);
 
                             }
+                            sb.append("合成为一张图片的时间为："+ (System.currentTimeMillis() - oldTime) + "ms\n");
 
                             if (allBitMap != null){
+                                oldTime = System.currentTimeMillis();
                                 Bitmap bit = SomeBitMapHandleWay.addHeadAndEndCutPosition(allBitMap);
+                                sb.append("加入切纸位的时间为："+ (System.currentTimeMillis() - oldTime) + "ms\n");
                                 if (bit == null )
                                     return;
-                                String path = EpsonPicture.saveBmp(bit);
+                                oldTime = System.currentTimeMillis();
+                                String path = EpsonPicture.saveBmpUse1Bit(bit);
+                                sb.append("保存为bmp图片文件的时间为："+ (System.currentTimeMillis() - oldTime) + "ms\n");
                                 if (path != null && path != ""){
                                     iv.setImageBitmap(BitmapFactory.decodeFile(path));
+                                    tv.setText(sb.toString());
                                 }
                             }
                             return;
                         }
 
+                        oldTime = System.currentTimeMillis();
                         String path = printOne(dataString);
+                        sb.append("元数据保存为bmp图片文件的时间为："+ (System.currentTimeMillis() - oldTime) + "ms\n");
                         if (path != null && path != ""){
                             iv.setImageBitmap(BitmapFactory.decodeFile(path));
                         }
