@@ -1,5 +1,11 @@
 package com.ucast.jnidiaoyongdemo.bmpTools;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.ucast.jnidiaoyongdemo.socket.Message.PrintMessage;
+import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +33,8 @@ public class EpsonParseDemo {
 
     /*设置着重操作*/
     public static final byte[] FONT_BOLD = new byte[]{0x1B, 0x45};
+    /*位图打印操作*/
+    public static final byte[] BIT_PRINT_START = new byte[]{0x1D, 0x76, 0x30};
     /*设置着重*/
     public static final byte[] FONT_BOLD_YES = new byte[]{0x1B, 0x45, 0x01};
     /*取消着重*/
@@ -35,7 +43,10 @@ public class EpsonParseDemo {
     public static final String endEpsonStr = "1D 28 4C";
 
 
-    //将指定byte数组以16进制的形式打印到控制台
+
+    /**
+     *  将指定byte数组以16进制的形式返回
+     * */
     public static String printHexString(byte[] b) {
         StringBuilder r = new StringBuilder();
         for (int i = 0; i < b.length; i++) {
@@ -56,7 +67,9 @@ public class EpsonParseDemo {
         return r.toString();
 
     }
-
+    /**
+     *  将element 数据添加到数组的尾部  返回新的数组
+     * */
     public static byte[] addAByte(byte element, byte[] res) {
         if (res == null) {
             byte[] newBy = new byte[1];
@@ -98,36 +111,53 @@ public class EpsonParseDemo {
 
         return epsonListString;
     }
-
+    /**
+     *  将数据分割成1B 1C 1D 开头
+     *
+     *  剔除了1B 70 m n l
+     * */
     public static List<byte[]> getEpsonFromByteArr(byte[] datas) {
         List<byte[]> epsonList = new ArrayList<>();
         int index = -1;
-        for (int i = 0; i < datas.length; i++) {
-            if (datas[i] == 0x1B || datas[i] == 0x1C || datas[i] == 0x1D) {
-                index++;
-                byte[] headBy = addAByte(datas[i], null);
-                epsonList.add(headBy);
-            } else {
-                if (index == -1) {
+        for (int i = 0; i < datas.length;) {
+            if(datas[i] == 0x1B || datas[i] ==0x1C || datas[i] == 0x1D ) {
+                if(datas[i] == 0x1D && i + 1 < datas.length && datas[i + 1] == 0x76) {
+                    index++;
+                    int width = (datas[i + 4] & 0xFF) + (datas[i + 5] << 8 & 0xff00);
+                    int height = (datas[i + 6] & 0xFF) + (datas[i + 7] << 8 & 0xff00);
+
+                    int bitArrLen = width * height + 8;
+
+                    byte[] headBy = new byte[bitArrLen];
+                    System.arraycopy(datas, i, headBy, 0, bitArrLen);
+                    epsonList.add(headBy);
+
+                    i = i + bitArrLen;
+                }else if(datas[i] == 0x1B && i + 1 < datas.length && datas[i + 1] == 0x70){
+                    i = i + 5;
+                }else {
+                    index++;
+                    byte[] headBy = addAByte(datas[i], null);
+                    epsonList.add(headBy);
+                    i++;
+                }
+            }else {
+                if(index == -1) {
+                    i++;
                     continue;
                 }
-                byte[] res = (byte[]) epsonList.get(index);
-                epsonList.set(index, addAByte(datas[i], res));
+                byte[] res = (byte [])epsonList.get(index);
+                epsonList.set(index ,addAByte(datas[i], res));
+                i++;
             }
         }
-//        for (int i = 0; i < epsonList.size(); i++) {
-//       	 byte[] res = (byte [])epsonList.get(i);
-//       	 for (int j = 0; j < res.length; j++) {
-//				System.out.print(res[j]);
-//			}
-//       	 System.out.println("   ");
-//		}
-//
         return epsonList;
     }
 
 
-    //判断数组是否相等
+    /**
+     *判断数组是否相等
+     * */
     public static boolean isArrEqual(byte[] a, byte[] b) {
         if (a.length != b.length) {
             return false;
@@ -140,8 +170,9 @@ public class EpsonParseDemo {
             return true;
         }
     }
-
-    //判断数组是否相等
+    /**
+     *判断数组是否相等
+     * */
     public static boolean isArr2HeadEqual(byte[] a, byte[] b) {
         if (a.length != b.length) {
             return false;
@@ -155,18 +186,22 @@ public class EpsonParseDemo {
         }
     }
 
+
+    /**
+     *  将Epson协议中夹杂的打印文字给找出来
+     * */
     public static List<PrintAndDatas> parseEpsonByteList(List<byte[]> lists) throws UnsupportedEncodingException {
         List<PrintAndDatas> printLists = new ArrayList<>();
         PrintAndDatas one_data = null;
         for (int i = 0; i < lists.size(); i++) {
             byte[] b = lists.get(i);
-
-            while (b.length <= 7 && b[b.length - 1] == 0x0A) {
-                byte[] b_tem = new byte[b.length - 1];
-                System.arraycopy(b, 0, b_tem, 0, b.length - 1);
-                b = null;
-                b = b_tem;
-            }
+//
+//            while (b.length <= 7 && b[b.length - 1] == 0x0A) {
+//                byte[] b_tem = new byte[b.length - 1];
+//                System.arraycopy(b, 0, b_tem, 0, b.length - 1);
+//                b = null;
+//                b = b_tem;
+//            }
             if (one_data == null) {
                 one_data = new PrintAndDatas();
             }
@@ -178,99 +213,292 @@ public class EpsonParseDemo {
                 case 3:
                     setPrintAndDataWithEpson(one_data, b);
                     break;
-                case 4:
-                    //目前可以忽略
-                    continue;
-                case 5:
-                    //目前可以忽略
-                    continue;
-                case 6:
-                    //目前可以忽略
-                    continue;
-                case 7:
-                    //目前可以忽略
-                    continue;
+//                case 4:
+//                    //目前可以忽略
+//                    continue;
+//                case 5:
+//                    //目前可以忽略
+//                    continue;
+//                case 6:
+//                    //目前可以忽略
+//                    continue;
+//                case 7:
+//                    //目前可以忽略
+//                    continue;
 
                 default:
-                    if (b.length > 7) {
+                    if (b.length > 3) {
                         int position = 0;
-                        byte[] datas = null;
-                        byte[] lastEpson = null;
 
-
-                        for (int j = 0; j < b.length; j++) {
-                            if (b[j] == 0x00 || b[j] == 0x01 || b[j] == 0x11) {
-                                position = j + 1;
-                                datas = new byte[b.length - position];
-                                System.arraycopy(b, position, datas, 0, datas.length);
-
-                                lastEpson = new byte[position];
-                                System.arraycopy(b, 0, lastEpson, 0, position);
-
-                                setPrintAndDataWithEpson(one_data, lastEpson);
-
-                                one_data.datas = new String(datas, "GB18030");
-
-                                if (!one_data.datas.equals("")) {
-                                    printLists.add(one_data);
+                        boolean isPasered = firstPaser(b,one_data,printLists);
+                        if (isPasered){
+                            one_data = null;
+                        }else{
+                            for (int j = 0; j < b.length; j++) {
+                                if (b[j] == 0x21){
+                                    position = j + 2;
+                                    setDataToList(position,b,one_data,printLists);
                                     one_data = null;
+                                    break;
                                 }
 
-                                break;
-                            }
-
-                            if(j > 3){
-                                position = j;
-                                datas = new byte[b.length - position];
-                                System.arraycopy(b, position, datas, 0, datas.length);
-
-                                lastEpson = new byte[position];
-                                System.arraycopy(b, 0, lastEpson, 0, position);
-
-                                setPrintAndDataWithEpson(one_data, lastEpson);
-
-                                one_data.datas = new String(datas, "GB18030");
-
-                                if (!one_data.datas.equals("")) {
-                                    printLists.add(one_data);
+//                            if(b[j] == 0x76 && b[j -1] == 0x1D){//是位图数据
+//                                position = j + 7;
+//                                byte[] datas = new byte[b.length - position];
+//                                System.arraycopy(b, position, datas, 0, datas.length);
+//
+//                                int mode = b[3] & 0xFF;
+//                                int with = (b[4] & 0xFF) + (b[5] << 8 & 0xff00);
+//                                int height = (b[6] & 0xFF) + (b[7] << 8 & 0xff00);
+//
+//                                int widthRate = 1;
+//                                int heightRate = 1;
+//
+//                                if (mode == 3 || mode == 51){
+//                                    widthRate = 2;
+//                                    heightRate = 2;
+//                                }else if(mode == 2 || mode == 50){
+//                                    widthRate = 1;
+//                                    heightRate = 2;
+//                                }else if(mode == 1 || mode == 49){
+//                                    widthRate = 2;
+//                                    heightRate = 1;
+//                                }else {
+//                                    widthRate = 1;
+//                                    heightRate = 1;
+//                                }
+//
+//                                one_data.isBit = true ;
+//                                one_data.bitWidthRate = widthRate;
+//                                one_data.bitHeightRate = heightRate;
+//                                one_data.bitWidth = with;
+//                                one_data.bitHeight = height;
+//                                one_data.setBitDatasByte(datas);
+//
+//                                printLists.add(one_data);
+//                                one_data = null;
+//
+//                                break;
+//                            }
+                                if (b[j] == 0x00 || b[j] == 0x01 || b[j] == 0x11) {
+                                    position = j + 1;
+                                    setDataToList(position,b,one_data,printLists);
                                     one_data = null;
+                                    break;
                                 }
 
-                                break;
-                            }
-
-                            if (b[j] == 0x0A || b[j] == 0x20 || b[j] == 0x2D) {
-                                position = j;
-                                datas = new byte[b.length - position];
-                                System.arraycopy(b, position, datas, 0, datas.length);
-
-                                lastEpson = new byte[position];
-                                System.arraycopy(b, 0, lastEpson, 0, position);
-
-                                setPrintAndDataWithEpson(one_data, lastEpson);
-
-                                one_data.datas = new String(datas, "GB18030");
-
-                                if (!one_data.datas.equals("")) {
-                                    printLists.add(one_data);
+                                if(j > 3){
+                                    position = j;
+                                    setDataToList(position,b,one_data,printLists);
                                     one_data = null;
+                                    break;
                                 }
-                                break;
-                            }
 
+
+
+                                if (b[j] == 0x0A || b[j] == 0x20 || b[j] == 0x2D) {
+                                    position = j;
+                                    setDataToList(position,b,one_data,printLists);
+                                    one_data = null;
+                                    break;
+                                }
+
+                            }
                         }
+
+
                     }
                     break;
             }
         }
-//        for (int i = 0; i < printLists.size(); i++) {
-//            PrintAndDatas one = printLists.get(i);
-//            System.out.println(one.FONT_SIZE_TIMES + "    " + one.FONT_SIZE_TYPE);
-//            System.out.println(one.datas);
-//        }
         return printLists;
     }
 
+    private static boolean firstPaser(byte[] b,PrintAndDatas one_data,List<PrintAndDatas> printLists) {
+        boolean isPasered = false;
+        int position = 0;
+        switch (b[0]){
+            case 0x1B :
+                byte b_1B_1 = b[1];
+                if (    b_1B_1 == 0x20 ||
+                        b_1B_1 == 0x21 ||
+                        b_1B_1 == 0x25 ||
+                        b_1B_1 == 0x2D ||
+                        b_1B_1 == 0x33 ||
+                        b_1B_1 == 0x3D ||
+                        b_1B_1 == 0x3F ||
+                        b_1B_1 == 0x44 ||
+                        b_1B_1 == 0x45 ||
+                        b_1B_1 == 0x47 ||
+                        b_1B_1 == 0x4A ||
+                        b_1B_1 == 0x4B ||
+                        b_1B_1 == 0x52 ||
+                        b_1B_1 == 0x55 ||
+                        b_1B_1 == 0x61 ||
+                        b_1B_1 == 0x72 ||
+                        b_1B_1 == 0x7B ||
+                        b_1B_1 == 0x75   ){
+                    position = 3;
+                    setDataToList(position,b,one_data,printLists);
+                    isPasered = true;
+                }
+                if(     b_1B_1 == 0x26 ||
+                        b_1B_1 == 0x2A ||
+                        b_1B_1 == 0x32 ||
+                        b_1B_1 == 0x3C ||
+                        b_1B_1 == 0x70   ){
+                    position = 2;
+                    setDataToList(position,b,one_data,printLists);
+                    isPasered = true;
+                }
+
+                break;
+            case 0x1C :
+                    byte b_1C_1 = b[1];
+                    if(     b_1C_1 == 0x26 ||
+                            b_1C_1 == 0x32   ) {
+                        position = 2;
+                        setDataToList(position, b, one_data, printLists);
+                        isPasered = true;
+                    }
+
+                if(     b_1C_1 == 0x57  ) {
+                    position = 3;
+                    setDataToList(position, b, one_data, printLists);
+                    isPasered = true;
+                }
+                break;
+            case 0x1D :
+                byte b_1D_1 = b[1];
+                if( b_1D_1 ==  0x76 ) {
+                    position = 8;
+                    byte[] datas = new byte[b.length - position];
+                    System.arraycopy(b, position, datas, 0, datas.length);
+
+                    int mode = b[3] & 0xFF;
+                    int with = (b[4] & 0xFF) + (b[5] << 8 & 0xff00);
+                    int height = (b[6] & 0xFF) + (b[7] << 8 & 0xff00);
+
+                    int widthRate = 1;
+                    int heightRate = 1;
+
+                    if (mode == 3 || mode == 51) {
+                        widthRate = 2;
+                        heightRate = 2;
+                    } else if (mode == 2 || mode == 50) {
+                        widthRate = 1;
+                        heightRate = 2;
+                    } else if (mode == 1 || mode == 49) {
+                        widthRate = 2;
+                        heightRate = 1;
+                    } else {
+                        widthRate = 1;
+                        heightRate = 1;
+                    }
+
+                    one_data.isBit = true;
+                    one_data.bitWidthRate = widthRate;
+                    one_data.bitHeightRate = heightRate;
+                    one_data.bitWidth = with;
+                    one_data.bitHeight = height;
+                    one_data.setBitDatasByte(datas);
+
+                    printLists.add(one_data);
+
+                    isPasered = true;
+                }
+
+                if(     b_1D_1 == 0x49 ||
+                        b_1D_1 == 0x56 ||
+                        b_1D_1 == 0x61 ||
+                        b_1D_1 == 0x72 ){
+                    position = 3;
+                    setDataToList(position, b, one_data, printLists);
+                    isPasered = true;
+                }
+
+                break;
+        }
+        return isPasered;
+
+    }
+
+    public static void setDataToList(int cutPosition,byte[] b,PrintAndDatas one_data,List<PrintAndDatas> printLists){
+        int position = cutPosition;
+        byte[] datas = new byte[b.length - position];
+        System.arraycopy(b, position, datas, 0, datas.length);
+
+        byte[] lastEpson = new byte[position];
+        System.arraycopy(b, 0, lastEpson, 0, position);
+
+        setPrintAndDataWithEpson(one_data, lastEpson);
+
+        try {
+            one_data.datas = new String(datas, "GB18030");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+//        ExceptionApplication.gLogger.error("datas-->>>" + one_data.datas);
+        if (!one_data.datas.equals("") && isRightData(datas)) {
+            printLists.add(one_data);
+        }
+    }
+
+
+    /**
+     *  剔除一些不是打印数据的方法
+     * */
+    public static boolean isRightData(byte[] data) {
+        boolean isRight = false;
+        if(data.length == 1) {
+            if(data[0] == 0x0A || data[0] == 0x0D || (data[0] >= 0x20 && data[0] <= 0x7E)) {
+                isRight = true;
+            }else {
+                isRight =false;
+            }
+        }else {
+            isRight = true;
+            if(data.length < 7) {
+                for (int i = 0; i < data.length; i++) {
+                    if(data[i] == 0x00) {
+                        isRight =false;
+                        return isRight;
+                    }
+                }
+            }
+        }
+        return isRight;
+    }
+
+    /**
+     *    将多个PrintAndDatas对象中的文字数据拼接为一个
+     *
+     *    当PrintAndDatas为位图数据时单独列为一项
+     * */
+    public static List<PrintAndDatas> makeListIWant(List<PrintAndDatas> lists) {
+        List<PrintAndDatas> goodList = new ArrayList<>();
+
+        int goodindex = -1 ;
+        for (int i = 0; i < lists.size(); i++) {
+            PrintAndDatas one_data = lists.get(i);
+            if(!one_data.isBit) {
+                if(goodindex == -1 || goodindex >= goodList.size()) {
+                    goodList.add(one_data);
+                    goodindex ++ ;
+                }else {
+                    PrintAndDatas one_good_data = goodList.get(goodindex);
+                    one_good_data.addDatas(one_data.getDatas());
+                    continue;
+                }
+
+            }else {
+                goodList.add(one_data);
+                goodindex += 2 ;
+            }
+        }
+        return goodList;
+
+    }
 
     public static void setPrintAndDataWithEpson(PrintAndDatas one_data, byte[] b) {
         if (isArrEqual(b, FONT_SIZE_1)) {
@@ -285,21 +513,12 @@ public class EpsonParseDemo {
             one_data.FONT_SIZE_TYPE = 1;
         }
     }
-
-
+    /**
+     *    解析  纯位图数据  生成对应的位图图片  返回对应的图片路径集合
+     * */
     public static List<String> parseEpsonBitData(String datas) {
-//        FileInputStream fis= null;
         List<String> bmpPaths = new ArrayList<>();
         try {
-//            fis = new FileInputStream(new File(path));
-//            StringBuilder sb =new StringBuilder();
-//            byte []  buf = new byte[1024];
-//            int num = 0;
-//            while((num = fis.read(buf))!=-1) {
-//                sb.append(new String(buf, 0, num));
-//            }
-//            String str = sb.toString().trim();
-
             int lineNumStart = 39;
             int dataStart = 51;
             String str = datas.trim();
@@ -348,6 +567,52 @@ public class EpsonParseDemo {
         return bmpPaths;
     }
 
+    /**
+     *    解析 文字和位图混合的数据  生成对应的位图图片  返回对应的图片路径
+     * */
+    public static List<String> parseEpsonBitDataAndString ( List<PrintAndDatas> lists){
+        List<String> bmpPaths = new ArrayList<>();
+
+        for (int i = 0; i < lists.size(); i++) {
+            PrintAndDatas one_data = lists.get(i);
+            if (one_data.isBit){
+                String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_bit_and_string_" + i + ".bmp";
+                saveAsBitmapWithByteDataUse1Bit(one_data.bitDatasByte, one_data.bitWidth * 8, bmpPath);
+                bmpPaths.add(bmpPath);
+            }else{
+                String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_string_" + i + ".bmp";
+                bmpPaths.add(EpsonPicture.getBitMapByString(one_data.getDatas(),bmpPath));
+            }
+        }
+        return bmpPaths;
+    }
+    /**
+     *    解析 文字和位图混合的数据  生成对应的位图图片  返回bitmap集合
+     * */
+    public static List<Bitmap> parseEpsonBitDataAndStringReturnBitmap (List<PrintAndDatas> lists){
+        List<Bitmap> bmps = new ArrayList<>();
+
+        for (int i = 0; i < lists.size(); i++) {
+            PrintAndDatas one_data = lists.get(i);
+            if (one_data.isBit){
+                String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_bit_and_string_" + i + ".bmp";
+                byte[] bmpData = one_data.bitDatasByte;
+                int widthNoRate = one_data.bitWidth;
+                int widthWithRate = one_data.getBitWidth();
+                if(one_data.bitWidthRate == 2){
+                    bmpData =EpsonPicture.getTwiceWidthData(bmpData , widthNoRate);
+                }
+                if (one_data.bitHeightRate == 2){
+                    bmpData =EpsonPicture.getTwiceHeighData(bmpData , widthWithRate);
+                }
+                saveAsBitmapWithByteDataUse1Bit(bmpData, widthWithRate * 8 , bmpPath);
+                bmps.add(BitmapFactory.decodeFile(bmpPath));
+            }else{
+                bmps.add(EpsonPicture.getBitMapByStringReturnBitmap(one_data.getDatas()));
+            }
+        }
+        return bmps;
+    }
 
     public static void saveAsBitmapWithByteData(byte[] datas ,int with ,String path) {
         FileOutputStream fos = null;
@@ -427,7 +692,11 @@ public class EpsonParseDemo {
         }
     }
 
-
+    /**
+     *    将位图数据按照给定的宽度并在给定的路径生成bmp图片
+     *
+     *    宽度是点的宽度  如384 一般为8 的倍数
+     * */
     public static void saveAsBitmapWithByteDataUse1Bit(byte[] datas ,int with ,String path) {
         FileOutputStream fos = null;
         int nBmpWidth = with;
@@ -443,7 +712,7 @@ public class EpsonParseDemo {
             fos.write(EpsonPicture.addBMPImageHeader(bufferSize + 62));
             fos.write(EpsonPicture.addBMPImageInfosHeader(wWidth ,hHeight,datas.length));
             fos.write(EpsonPicture.addBMPImageColorTable());
-            // 像素扫描
+            //像素扫描 并用0x00补位
             byte bmpData[] = new byte[bufferSize];
 
             for (int i = 0; i < hHeight; i++) {
@@ -460,8 +729,6 @@ public class EpsonParseDemo {
                 }
             }
 
-
-
             fos.write(bmpData);
             fos.flush();
             fos.close();
@@ -474,7 +741,6 @@ public class EpsonParseDemo {
 
 
     }
-
 
     protected static void writeWord(FileOutputStream stream, int value) throws IOException {
         byte[] b = new byte[2];

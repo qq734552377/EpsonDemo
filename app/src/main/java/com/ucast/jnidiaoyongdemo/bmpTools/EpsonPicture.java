@@ -9,14 +9,19 @@ import android.graphics.Typeface;
 import android.os.Environment;
 
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Administrator on 2016/6/8.
@@ -72,29 +77,63 @@ public class EpsonPicture {
                 canvas.drawText(list.get(j), one.OFFSET_X, cur_line * one.LINE_HEIGHT +one.OFFSET_Y * one.FONT_SIZE_TIMES, print);
                 cur_line ++;
             }
-
         }
-
-
-
         canvas.save(Canvas.ALL_SAVE_FLAG);
         canvas.restore();
-        String path = saveBmpUse1Bit(bmp);
+        String path = saveBmpUse1Bit(bmp ,null);
         return path;
     }
 
+    /**
+     *  将给定的打印数据生成bmp图片 返回路径
+     * */
+    public static String getBitMapByString(String string ,String outPath) {
+        Bitmap bmp = getBitMapByStringReturnBitmap(string);
+        String path = saveBmpUse1Bit(bmp ,outPath);
+        return path;
+    }
 
+    /**
+     *  将给定的打印数据生成bmp图片 返回Bitmap
+     * */
+    public static Bitmap getBitMapByStringReturnBitmap(String string) {
+        List<String> list = getLineStringDatas(string);
+
+        int Height = list.size() * LINE_HEIGHT;
+        Bitmap bmp = Bitmap.createBitmap(384, Height + CUT_PAPER_HEIGHT, Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bmp);
+        canvas.drawColor(Color.WHITE);
+        Paint print = new Paint();
+        print.setColor(Color.BLACK);
+        print.setTextSize(24);
+        Typeface font = Typeface.createFromAsset(ExceptionApplication.getInstance().getAssets(),FONT);
+        print.setTypeface(Typeface.create(font,Typeface.NORMAL));
+        for (int i = 0; i < list.size(); i++) {
+            canvas.drawText(list.get(i), 0, i * LINE_HEIGHT + CUT_PAPER_HEIGHT, print);
+        }
+        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.restore();
+
+        return bmp;
+    }
     /**
      * 通过字符串获取分行的数据
      *
      * */
-
     public static List<String> getLineStringDatas(String string){
-        String[] dataString = string.split("\n");
+        String[] dataString = null;
+        dataString = string.replace("\r","").split("\n");
         List<String> list = new ArrayList<>();
         List<String> splistlist;
         for (int i = 0; i < dataString.length; i++) {
-            if (dataString[i].getBytes().length > LINE_STRING_NUMBER) {
+            byte[] one =null;
+            try {
+                 one = dataString[i].getBytes("GB18030");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            int len = one == null ? dataString[i].getBytes().length : one.length;
+            if ( len > LINE_STRING_NUMBER) {
                 splistlist = splitString(dataString[i]);
                 for (int t = 0; t < splistlist.size(); t++) {
                     list.add(splistlist.get(t));
@@ -142,7 +181,7 @@ public class EpsonPicture {
      * 保存图片 位图深度为24
      *
      * @param bitmap
-     * @return
+     * @return 生成bmp的绝对路径
      */
     public static String saveBmp(Bitmap bitmap) {
         if (bitmap == null)
@@ -229,30 +268,29 @@ public class EpsonPicture {
     }
 
     /**
-     * 保存图片 位图深度为1
+     * 保存为bmp图片 位图深度为1
      *
      * @param bitmap
-     * @return
+     * @return 生成bmp的绝对路径
      */
-    public static String saveBmpUse1Bit(Bitmap bitmap){
+    public static String saveBmpUse1Bit(Bitmap bitmap,String outPath){
         if (bitmap == null)
             return null;
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
+        byte[] datas = addBMP_RGB_888(bitmap);
 
         int line_byte_num = w / 8;
         int saveBmpHeight = h;
         int saveBmpWith = ((w + 31)/32) * 32;
         int bufferSize =  saveBmpHeight * saveBmpWith / 8;
 
-        byte[] datas = addBMP_RGB_888(bitmap);
         byte[] header = addBMPImageHeader(62 + bufferSize );
         byte[] infos = addBMPImageInfosHeader(saveBmpWith, saveBmpHeight,bufferSize);
         byte[] colortable = addBMPImageColorTable();
 
-        // 像素扫描
+        // 像素扫描 并用0x00补位
         byte bmpData[] = new byte[bufferSize];
-
         for (int i = 0; i < saveBmpHeight; i++) {
             for (int j = 0; j < saveBmpWith / 8 ; j++) {
                 int srcDataIndex = i * line_byte_num + j;
@@ -263,16 +301,20 @@ public class EpsonPicture {
                 }else{
                     bmpData[destDataIndex] = 0x00;
                 }
-
             }
         }
-
+        String path = "";
         try {
-            File dirFile = new File(ALBUM_PATH);
+            File dirFile = new File(ALBUM_PATH + "/Ucast/" +MyTools.millisToDateStringOnlyYMD(System.currentTimeMillis()));
             if (!dirFile.exists()) {
                 dirFile.mkdir();
             }
-            File myCaptureFile = new File(ALBUM_PATH + "/Ucast/" + System.currentTimeMillis()+".bmp");
+            if (outPath == null) {
+                path = ALBUM_PATH + "/Ucast/" + MyTools.millisToDateStringOnlyYMD(System.currentTimeMillis()) + File.separator + MyTools.millisToDateStringNoSpace(System.currentTimeMillis()) +"_"+ UUID.randomUUID().toString().replace("-", "") + ".bmp";
+            }else{
+                path = outPath;
+            }
+            File myCaptureFile = new File(path);
             FileOutputStream fileos = new FileOutputStream(myCaptureFile);
 
             fileos.write(header);
@@ -286,7 +328,7 @@ public class EpsonPicture {
         } catch (Exception e){
             return null;
         }
-        return ALBUM_PATH + BIT_NAME;
+        return path;
     }
 
 
@@ -670,13 +712,14 @@ public class EpsonPicture {
 
 
 
-    private static byte[] TurnBytes(Bitmap bitmap) {
+    public static byte[] TurnBytes(Bitmap bitmap) {
         int W = bitmap.getWidth();
+        int PW = SomeBitMapHandleWay.PRINT_WIDTH;
+        int copyW = PW < W ? PW : W ;
         int H = bitmap.getHeight();
-        byte[] bt = new byte[W / 8 * H];
-        int idx = 0;
+        byte[] bt = new byte[PW / 8 * H];
         for (int i = 0; i < H; i++) {
-            for (int j = 0; j < W; j = j + 8) {
+            for (int j = 0; j < copyW; j = j + 8) {
                 byte value = 0;
                 for (int s = 0; s <= 7; s++) {
                     int a = bitmap.getPixel(j + s, i);
@@ -685,13 +728,103 @@ public class EpsonPicture {
                         value |= 1 << s;
                     }
                 }
-                bt[idx] = value;
-                idx++;
+                bt[i * PW / 8 + j / 8] = value;
             }
         }
         return bt;
     }
 
+    /**
+     * the traditional io way
+     *
+     * @param filename
+     * @return
+     */
+    public static byte[] getByteArrayFromFile(String filename) {
 
+        File f = new File(filename);
+        if (!f.exists()) {
+            return null;
+        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream((int) f.length());
+        BufferedInputStream in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(f));
+            int buf_size = 1024;
+            byte[] buffer = new byte[buf_size];
+            int len = 0;
+            while (-1 != (len = in.read(buffer, 0, buf_size))) {
+                bos.write(buffer, 0, len);
+            }
+            return bos.toByteArray();
+        } catch (IOException e) {
+            return null;
+        } finally {
+            try {
+                in.close();
+                bos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    /**
+     *  将一整张位图数据的高度增加两倍
+     * */
+    public static byte[] getTwiceHeighData(byte[] res , int width){
+
+        int resLength = res.length;
+        if( resLength % width != 0) {
+            return res;
+        }
+        byte[] des = new byte[resLength * 2];
+        for (int i = 0; i < resLength/width; i++) {
+            System.arraycopy(res, i * width, des, 2 * i * width  , width);
+            System.arraycopy(res, i * width, des, 2 * i * width + width  , width);
+        }
+        return des;
+    }
+
+    /**
+     *  将一整张位图数据的宽度增加两倍
+     * */
+    public static byte[] getTwiceWidthData(byte[] res , int width){
+        int resLength = res.length;
+        if( resLength % width != 0) {
+            return res;
+        }
+        byte[] des = new byte[resLength * 2];
+        for (int i = 0; i < resLength; i++) {
+            byte one = res[i];
+            byte front = 0x00;
+            byte  back= 0x00;
+            for (int j = 0; j < 4; j++) {
+                int  front_one_bit = 0x01 & (one >> (7 - j));
+                if(front_one_bit == 1) {
+                    front = (byte) (front | (0x01 << (7 - 2 * j)));
+                    front = (byte) (front | (0x01 << (6 - 2 * j)));
+                }
+                int  back_one_bit = 0x01 & (one >> (3 - j));
+                if(back_one_bit == 1) {
+                    back = (byte) (back | (0x01 << (7 - 2 * j)));
+                    back = (byte) (back | (0x01 << (6 - 2 * j)));
+                }
+            }
+            des[2 * i ] = front;
+            des[2 * i + 1 ] = back;
+        }
+
+        return des;
+    }
+
+    public static byte fanWei(byte src){
+        byte des = 0x00;
+        for (int i = 0; i < 8 ; i++) {
+            if (((src >> i) & 0x01) == 1){
+                des = (byte) (des | 0x01 << (7 - i));
+            }
+        }
+        return des;
+    }
 
 }

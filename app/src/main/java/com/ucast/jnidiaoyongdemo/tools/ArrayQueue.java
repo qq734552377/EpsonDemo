@@ -1,4 +1,4 @@
-package com.ucast.jnidiaoyongdemo.Tool;
+package com.ucast.jnidiaoyongdemo.tools;
 
 public class ArrayQueue<T> {
     private T[] elements;

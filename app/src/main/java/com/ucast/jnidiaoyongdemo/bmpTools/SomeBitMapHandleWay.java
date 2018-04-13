@@ -1,19 +1,29 @@
 package com.ucast.jnidiaoyongdemo.bmpTools;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.util.Log;
 
+import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
+import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
+
+import java.util.List;
+
 import static com.ucast.jnidiaoyongdemo.tools.CrashHandler.TAG;
 
 /**
- * Created by Administrator on 2018/1/18.
+ * Created by pj on 2018/1/18.
  */
 
 public class SomeBitMapHandleWay {
+
+    public final static int PRINT_WIDTH = 384 ;
     /**
      * 把两个位图覆盖合成为一个位图，以底层位图的长宽为基准
      * @param backBitmap 在底部的位图
@@ -94,7 +104,11 @@ public class SomeBitMapHandleWay {
                 || bottomBitmap == null || bottomBitmap.isRecycled()) {
             return null;
         }
-        int width = 384;
+        int width = PRINT_WIDTH;
+
+        width = topBitmap.getWidth() >= bottomBitmap.getWidth() ? topBitmap.getWidth() : bottomBitmap.getWidth();
+        width = width > PRINT_WIDTH ? width : PRINT_WIDTH;
+
         Bitmap tempBitmapT = topBitmap;
         Bitmap tempBitmapB = bottomBitmap;
 
@@ -145,9 +159,11 @@ public class SomeBitMapHandleWay {
         if (src == null || src.isRecycled()) {
             return null;
         }
-        int headHeight = 80;
-        int endHeight = 200;
-        int width = 384;
+        int headHeight = 20;
+        int endHeight = 40;
+
+        int width = src.getWidth() > PRINT_WIDTH ? src.getWidth() : PRINT_WIDTH ;
+
         int height =  src.getHeight() + headHeight + endHeight;
 
         Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
@@ -162,6 +178,66 @@ public class SomeBitMapHandleWay {
         canvas.save(Canvas.ALL_SAVE_FLAG);
         canvas.restore();
         return bitmap;
+    }
+
+    public static String compoundOneBitPic(List<String>  paths){
+
+        String path = "";
+        int pathNum = paths.size();
+        if ( pathNum< 1) {
+            Bitmap bit = BitmapFactory.decodeFile(paths.get(0));
+            path = EpsonPicture.saveBmpUse1Bit(SomeBitMapHandleWay.addHeadAndEndCutPosition(bit),null);
+            return path;
+        }
+        Bitmap allBitMap = null;
+        for (int i = 0; i < pathNum; i++) {
+            if (allBitMap == null){
+                allBitMap= BitmapFactory.decodeFile(paths.get(i));
+            }
+            if(i + 1 == pathNum){
+                break;
+            }
+            Bitmap backBitMap = BitmapFactory.decodeFile(paths.get(i + 1));
+            allBitMap = SomeBitMapHandleWay.mergeBitmap_TB(allBitMap,backBitMap);
+        }
+
+        if (allBitMap != null){
+            Bitmap bit = SomeBitMapHandleWay.addHeadAndEndCutPosition(allBitMap);
+            if (bit == null )
+                return "";
+            path = EpsonPicture.saveBmpUse1Bit(bit, null);
+        }
+
+        return path;
+    }
+    public static String compoundOneBitPicWithBimaps(List<Bitmap>  paths){
+
+        String path = "";
+        int pathNum = paths.size();
+        if ( pathNum< 1) {
+            Bitmap bit = paths.get(0);
+            path = EpsonPicture.saveBmpUse1Bit(SomeBitMapHandleWay.addHeadAndEndCutPosition(bit),null);
+            return path;
+        }
+        Bitmap allBitMap = null;
+        for (int i = 0; i < pathNum; i++) {
+            if (allBitMap == null){
+                allBitMap= paths.get(i);
+            }
+            if(i + 1 == pathNum){
+                break;
+            }
+            Bitmap backBitMap = paths.get(i + 1);
+            allBitMap = SomeBitMapHandleWay.mergeBitmap_TB(allBitMap,backBitMap);
+        }
+
+        if (allBitMap != null){
+            Bitmap bit = SomeBitMapHandleWay.addHeadAndEndCutPosition(allBitMap);
+            if (bit == null )
+                return "";
+            path = EpsonPicture.saveBmpUse1Bit(bit, null);
+        }
+        return path;
     }
 
 }

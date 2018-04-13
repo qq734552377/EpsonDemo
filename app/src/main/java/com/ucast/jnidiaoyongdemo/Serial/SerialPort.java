@@ -18,6 +18,8 @@ package com.ucast.jnidiaoyongdemo.Serial;
 
 import android.util.Log;
 
+import com.ucast.jnidiaoyongdemo.Model.Config;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -28,14 +30,14 @@ import java.io.OutputStream;
 
 public class SerialPort {
 	private static final String TAG = "SerialPort";
-	/*
-	 * Do not remove or rename the field mFd: it is used by native method close();
-	 */
 	private FileDescriptor mFd;
 	private FileInputStream mFileInputStream;
 	private FileOutputStream mFileOutputStream;
+	public static final int PRINTER_TYPE = 1;
+	public static final int USB_TYPE = 2;
 
-	public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+
+	public SerialPort(File device, int type, int flags) throws SecurityException, IOException {
 
 		/* Check access permission */
 		if (!device.canRead() || !device.canWrite()) {
@@ -55,25 +57,25 @@ public class SerialPort {
 			}
 		}
 
-//		mFd = open(device.getAbsolutePath(), baudrate, flags);
-		mFd = openPrint(device.getAbsolutePath(), baudrate, flags);
-		Log.e("calm", "------mfd------"+mFd);
+		if (type == USB_TYPE) {
+			mFd = openUsbPrint(device.getAbsolutePath(), Config.USB_BAIDRATE, flags);
+		}else if(type == PRINTER_TYPE){
+			mFd = open(device.getAbsolutePath(), Config.PRINT_BAIDRATE, flags);
+		}
 
 		if (mFd == null) {
-			Log.e(TAG, "native open returns null");
 			throw new IOException("打开设备串口错误，错误原因大概没找到");
 		}
 		mFileInputStream = new FileInputStream(mFd);
 		mFileOutputStream = new FileOutputStream(mFd);
 	}
+
 	 public void closeSerialPort(){
 		 close();
-		 Log.e("calm","-----关闭串口-------");
 	 }
 
 	// Getters and setters
 	public InputStream getInputStream() throws IOException {
-
 		return mFileInputStream;
 	}
 
@@ -82,7 +84,7 @@ public class SerialPort {
 	}
 
 	// JNI
-	private native static FileDescriptor openPrint(String path, int baudrate, int flags);
+	private native static FileDescriptor openUsbPrint(String path, int baudrate, int flags);
 	private native static FileDescriptor open(String path, int baudrate, int flags);
 	public native void close();
 	static {
