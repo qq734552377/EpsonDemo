@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,7 +18,9 @@ import android.widget.Toast;
 
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
+import com.ucast.jnidiaoyongdemo.Model.KeyboardSwitch;
 import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
+import com.ucast.jnidiaoyongdemo.Model.MermoyKeyboardSerial;
 import com.ucast.jnidiaoyongdemo.Model.MermoyPrinterSerial;
 import com.ucast.jnidiaoyongdemo.Model.MermoyUsbSerial;
 import com.ucast.jnidiaoyongdemo.Model.MsCardProtocol;
@@ -26,6 +29,7 @@ import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
 import com.ucast.jnidiaoyongdemo.Model.UploadDataQueue;
+import com.ucast.jnidiaoyongdemo.Serial.KeyBoardSerial;
 import com.ucast.jnidiaoyongdemo.Serial.UsbSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 import com.ucast.jnidiaoyongdemo.Serial.PrinterSerialRestart;
@@ -70,9 +74,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Toast.makeText(MainActivity.this, "开始", Toast.LENGTH_SHORT).show();
-                ExceptionApplication.gLogger.info(" send path to Queue " + MyTools.millisToDateString(System.currentTimeMillis()));
-                String path = Environment.getExternalStorageDirectory() + "/ucast.bmp";
-                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(path));
+//                ExceptionApplication.gLogger.info(" send path to Queue " + MyTools.millisToDateString(System.currentTimeMillis()));
+//                String path = Environment.getExternalStorageDirectory() + "/ucast.bmp";
+//                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(path));
+                String str  = "http://www.ucast.sg";
+                KeyboardSwitch.sendToKeyboard(str);
+
             }
         });
     }
