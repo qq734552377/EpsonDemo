@@ -13,7 +13,7 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags ""
-                abiFilters "armeabi"
+                abiFilters "armeabi", "armeabi-v7a"
             }
         }
     }
@@ -37,5 +37,11 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile files('libs/netty-all-4.1.6.Final.jar')
+    compile 'org.xutils:xutils:3.3.26'
+    compile files('libs/log4j-1.2.17.jar')
+    compile files('libs/android-logging-log4j-1.0.3.jar')
+    compile 'com.alibaba:fastjson:1.1.58.android'
     testCompile 'junit:junit:4.12'
 }
