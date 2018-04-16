@@ -4,6 +4,8 @@ import android.graphics.Bitmap;
 import android.os.Environment;
 import android.os.Message;
 
+import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
+import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.bmpTools.PrintAndDatas;
 import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
@@ -131,6 +133,7 @@ public class UsbSerial {
 //                System.arraycopy(tem,0,allBufferDatas,0,tem.length);
 //                System.arraycopy(buffer,0,allBufferDatas,tem.length,buffer.length);
 //            }
+            ExceptionApplication.gLogger.info(" get data time -->" + System.currentTimeMillis());
             //获取切纸前的所有数据
             String str = EpsonParseDemo.printHexString(buffer);
 //            sBuffer = sBuffer + str;
@@ -147,7 +150,7 @@ public class UsbSerial {
                 if (endIndex < startIndex)
                     break;
                 int len = endIndex + 6;
-                ExceptionApplication.gLogger.info("get one data  -->" + System.currentTimeMillis());
+//                ExceptionApplication.gLogger.info("get one data  -->" + System.currentTimeMillis());
                 String ong_Print_msg = sBuildBuffer.substring(startIndex, len);
                 serialString(ong_Print_msg);
                 if (len >= sBuildBuffer.length()){
@@ -242,9 +245,9 @@ public class UsbSerial {
             if (output != null) {
                 output.close();
             }
-//            if (handler != null){
-//                handler = null;
-//            }
+            if (handler != null){
+                handler = null;
+            }
             if (ser != null)
                 ser.closeSerialPort();
         } catch (IOException e) {
@@ -281,9 +284,16 @@ public class UsbSerial {
         try {
             if(string.contains(EpsonParseDemo.startEpsonStr)){
                 List<String> paths = EpsonParseDemo.parseEpsonBitData(string.trim());
+                for (int i = 0; i <paths.size() ; i++) {
+                    if (i == paths.size() -1 ) {
+                        handleToServiceToPrint(paths.get(i),true);
+                    }else{
+                        handleToServiceToPrint(paths.get(i),false);
+                    }
+                }
                 String p = SomeBitMapHandleWay.compoundOneBitPic(paths);
                 MyTools.uploadFileByQueue(p);
-                handleToServiceToPrint(p);
+//                handleToServiceToPrint(p);
                 return;
             }
             printOne(string);
@@ -291,12 +301,13 @@ public class UsbSerial {
             e.printStackTrace();
         }
     }
-    public void handleToServiceToPrint(String path) {
-        Message msg = Message.obtain(handler);
-        msg.obj = path;
-        msg.what = 10;
-        msg.sendToTarget();
-//        ExceptionApplication.gLogger.info("send pic to service -->" + System.currentTimeMillis());
+    public void handleToServiceToPrint(String path ,boolean isCutPapper) {
+//        Message msg = Message.obtain(handler);
+//        msg.obj = path;
+//        msg.what = 10;
+//        msg.sendToTarget();
+        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(path,isCutPapper));
+
     }
 
     public String printOne(String data){
@@ -314,14 +325,14 @@ public class UsbSerial {
 
             List<PrintAndDatas> goodPrintdatas = EpsonParseDemo.makeListIWant(printdatas);
 
-//            MyTools.uploadDataByQueue(goodPrintdatas.get(0).datas);
+//            MyTools.uploadDataByQueue(goodPrintdatas.get(0).stringDatas);
 
             List<Bitmap> bmps = EpsonParseDemo.parseEpsonBitDataAndStringReturnBitmap(goodPrintdatas);
 
             path = SomeBitMapHandleWay.compoundOneBitPicWithBimaps(bmps);
             if (path != null && path != ""){
                 MyTools.uploadDataAndFileWithURLByQueue(goodPrintdatas.get(0).datas,path , YinlianHttpRequestUrl.UPLOADBASE64URL);
-                handleToServiceToPrint(path);
+                handleToServiceToPrint(path,true);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -159,8 +159,12 @@ public class SomeBitMapHandleWay {
         if (src == null || src.isRecycled()) {
             return null;
         }
-        int headHeight = 20;
-        int endHeight = 40;
+        int headHeight = 0;
+        int endHeight = 0;
+
+        if(headHeight == 0 && endHeight == 0){
+            return src;
+        }
 
         int width = src.getWidth() > PRINT_WIDTH ? src.getWidth() : PRINT_WIDTH ;
 

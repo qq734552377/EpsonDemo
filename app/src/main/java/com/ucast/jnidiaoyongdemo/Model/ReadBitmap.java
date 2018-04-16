@@ -68,7 +68,7 @@ public class ReadBitmap {
                 Bitmap bitmap = item.getBitmap();
                 byte[] pictureByte;
                 if (bitmap == null){
-                    pictureByte  =  EpsonPicture.TurnBytes(bitmap);//转换byte数组
+                    pictureByte  =  EpsonPicture.turnBytes(bitmap);//转换byte数组
                 }else{
                     pictureByte = getBmpByteFromBMPFile(item.getPath());
                 }
@@ -223,13 +223,13 @@ public class ReadBitmap {
         //不是1位图数据
         if (bitCount != 1) {
             ExceptionApplication.gLogger.error("Bitmap is not 1 bit ! Paser bitCount = " + bitCount);
-            return EpsonPicture.TurnBytes(BitmapFactory.decodeFile(path));
+            return EpsonPicture.turnBytes(BitmapFactory.decodeFile(path));
         }
         int bmpLen = allFileData.length - 62;
         w = w / 8;
         if( bmpLen != w * h){
             ExceptionApplication.gLogger.error("Bitmap File data length is wrong");
-            return EpsonPicture.TurnBytes(BitmapFactory.decodeFile(path));
+            return EpsonPicture.turnBytes(BitmapFactory.decodeFile(path));
         }
         long oldTime = System.currentTimeMillis();
         byte[] bmpData = new byte[bmpLen];//1位图bmp的所有数据

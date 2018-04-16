@@ -1,22 +1,14 @@
 package com.ucast.jnidiaoyongdemo.Serial;
 
-import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.util.Log;
-
-import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
 import com.ucast.jnidiaoyongdemo.Model.MsCardProtocol;
 import com.ucast.jnidiaoyongdemo.Model.PrinterProtocol;
-import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
-import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
-import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
 import java.io.File;
 import java.io.IOException;
@@ -175,10 +167,8 @@ public class OpenPrint {
 
 
     private void AnalyticalProtocol(byte[] buffer) {
-//        ExceptionApplication.gLogger.info(EpsonParseDemo.printHexString(buffer));
         //添加串口数据
         jointBuffer(buffer);
-//        ExceptionApplication.gLogger.info(EpsonParseDemo.printHexString(fanhuiBuffer));
         while (offSet > 0) {
             int startIndex = getIndexByByte((byte) 0x02);
             if (startIndex <= -1) {
@@ -278,7 +268,7 @@ public class OpenPrint {
         switch (str) {
             case "PA":  //是否打开打印设备回复
                 ExceptionApplication.gLogger.info("Printer Swtich on!");
-                SendPackage.SendSerialPortBuffer(PrinterProtocol.getPrinterStartPrinterProtocol() );
+                SendPackage.sendToPrinter(PrinterProtocol.getPrinterStartPrinterProtocol() );
                 break;
             case "PB":  //是否关闭打印设备回复
                 ExceptionApplication.gLogger.info("Printer Swtich off!");
@@ -299,7 +289,7 @@ public class OpenPrint {
 
             case "MA"://是否打开磁卡设备回复
                 ExceptionApplication.gLogger.info("MaCard Swtich on!");
-                SendPackage.SendSerialPortBuffer(MsCardProtocol.getRegisterMsCardProtocol());
+                SendPackage.sendToPrinter(MsCardProtocol.getRegisterMsCardProtocol());
                 break;
             case "MB"://是否关闭磁卡设备回复
                 ExceptionApplication.gLogger.info("MaCard Swtich off!");
@@ -320,7 +310,7 @@ public class OpenPrint {
             case "MH"://刷卡后通知命令回复
                 ExceptionApplication.gLogger.info("MaCard is working , can get data !");
                 for (int i = 0; i < 3; i++) {
-                    SendPackage.SendSerialPortBuffer(MsCardProtocol.getGetDataMsCardByNumProtocol((byte) (i & 0xFF)));
+                    SendPackage.sendToPrinter(MsCardProtocol.getGetDataMsCardByNumProtocol((byte) (i & 0xFF)));
                 }
                 break;
 
@@ -345,7 +335,7 @@ public class OpenPrint {
                 break;
             case 2:
                 ExceptionApplication.gLogger.info("3 number data :" + new String(dataMs).toString());
-                SendPackage.SendSerialPortBuffer(MsCardProtocol.getRegisterMsCardProtocol());
+                SendPackage.sendToPrinter(MsCardProtocol.getRegisterMsCardProtocol());
                 break;
         }
     }

@@ -3,16 +3,17 @@ package com.ucast.jnidiaoyongdemo.bmpTools;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.ucast.jnidiaoyongdemo.socket.Message.PrintMessage;
+import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
+import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Administrator on 2018/1/8.
@@ -40,7 +41,9 @@ public class EpsonParseDemo {
     /*取消着重*/
     public static final byte[] FONT_BOLD_NO = new byte[]{0x1B, 0x45, 0x00};
     public static final String startEpsonStr = "1D 38 4C";
+    public static final byte[] STARTEPSONBYTE = {0x1D,0x38,0x4C};
     public static final String endEpsonStr = "1D 28 4C";
+    public static final byte[] ENDEPSONBYTE = {0x1D,0x28,0x4C};
 
 
 
@@ -244,8 +247,8 @@ public class EpsonParseDemo {
 
 //                            if(b[j] == 0x76 && b[j -1] == 0x1D){//是位图数据
 //                                position = j + 7;
-//                                byte[] datas = new byte[b.length - position];
-//                                System.arraycopy(b, position, datas, 0, datas.length);
+//                                byte[] stringDatas = new byte[b.length - position];
+//                                System.arraycopy(b, position, stringDatas, 0, stringDatas.length);
 //
 //                                int mode = b[3] & 0xFF;
 //                                int with = (b[4] & 0xFF) + (b[5] << 8 & 0xff00);
@@ -273,7 +276,7 @@ public class EpsonParseDemo {
 //                                one_data.bitHeightRate = heightRate;
 //                                one_data.bitWidth = with;
 //                                one_data.bitHeight = height;
-//                                one_data.setBitDatasByte(datas);
+//                                one_data.setBitDatasByte(stringDatas);
 //
 //                                printLists.add(one_data);
 //                                one_data = null;
@@ -438,7 +441,7 @@ public class EpsonParseDemo {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-//        ExceptionApplication.gLogger.error("datas-->>>" + one_data.datas);
+//        ExceptionApplication.gLogger.error("stringDatas-->>>" + one_data.stringDatas);
         if (!one_data.datas.equals("") && isRightData(datas)) {
             printLists.add(one_data);
         }
@@ -542,29 +545,124 @@ public class EpsonParseDemo {
                 if (bitPicLists.size() > 0) {
                     EpsonBitData lastBit = bitPicLists.get(bitPicLists.size() - 1);
                     if (lastBit.getWith() == line_num * 8) {
-                        lastBit.addDatas(dataStr);
+                        lastBit.addStringDatas(dataStr);
                         str = str.substring(end + 21);
                         continue;
                     }
                 }
                 EpsonBitData oneBit = new EpsonBitData();
                 oneBit.setWith(line_num * 8);
-                oneBit.setDatas(dataStr);
+                oneBit.setStringDatas(dataStr);
                 bitPicLists.add(oneBit);
                 str = str.substring(end + 21);
             }
             for (int i = 0; i < bitPicLists.size(); i++) {
-                String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_bit_" + i + ".bmp";
+                String bmpPath = EpsonPicture.TEMPBITPATH + File.separator + "ucast_bit_" + UUID.randomUUID().toString().replace("-", "")+"_" +i + ".bmp";
+
                 EpsonBitData one = bitPicLists.get(i);
-//                saveAsBitmapWithByteData(one.getByteDatas(), one.getWith(), bmpPath);
-                saveAsBitmapWithByteDataUse1Bit(one.getByteDatas(), one.getWith(), bmpPath);
+                saveAsBitmapWithByteDataUse1Bit(one.getByteFromStringDatas(), one.getWith(), bmpPath);
                 bmpPaths.add(bmpPath);
             }
-//            fis.close();
         } catch (Exception e) {
             return null;
         }
         return bmpPaths;
+    }
+
+    /**
+     *    解析  纯位图数据  生成对应的位图图片  返回对应的图片路径集合
+     * */
+    public static List<String> parseEpsonBitData(byte[] datas) {
+        List<String> bmpPaths = new ArrayList<>();
+        try {
+            int lineNumStart = 39 / 3;
+            int dataStart = 51 / 3;
+            List<EpsonBitData> bitPicLists = new ArrayList<>();
+            while (isContainByteArr(datas,STARTEPSONBYTE)) {
+                int start = getByteArrIndex(datas,STARTEPSONBYTE);
+                int end = getByteArrIndex(datas,ENDEPSONBYTE);
+                if (start > end)
+                    return null;
+                int len = end - start;
+                byte[] oneBitData = new byte[len];
+                System.arraycopy(datas,start,oneBitData,0,oneBitData.length);
+                int high = oneBitData[lineNumStart + 1] & 0xFF;
+                int low = oneBitData[lineNumStart ]  & 0xFF;
+                int line_num = (high * 256 + low + 7) / 8;
+
+                byte[] bitdata = new byte[len - dataStart];
+                System.arraycopy(oneBitData,dataStart,bitdata,0,bitdata.length);
+
+                if (bitPicLists.size() > 0) {
+                    EpsonBitData lastBit = bitPicLists.get(bitPicLists.size() - 1);
+                    if (lastBit.getWith() == line_num * 8) {
+                        lastBit.addDatasByte(bitdata);
+                        byte[] temp = new byte[datas.length - end -7];
+                        System.arraycopy(datas,end+ 7,temp,0,temp.length);
+                        datas = new byte[temp.length];
+                        System.arraycopy(temp,0,datas,0,temp.length);
+                        continue;
+                    }
+                }
+                EpsonBitData oneBit = new EpsonBitData();
+                oneBit.setWith(line_num * 8);
+                oneBit.setDatasByte(bitdata);
+                bitPicLists.add(oneBit);
+                byte[] temp = new byte[datas.length - end -7];
+                System.arraycopy(datas,end+ 7,temp,0,temp.length);
+                datas = new byte[temp.length];
+                System.arraycopy(temp,0,datas,0,temp.length);
+            }
+            for (int i = 0; i < bitPicLists.size(); i++) {
+                String bmpPath = EpsonPicture.TEMPBITPATH + File.separator + "ucast_bit_" + UUID.randomUUID().toString().replace("-", "")+"_" +i + ".bmp";
+                EpsonBitData one = bitPicLists.get(i);
+                saveAsBitmapWithByteDataUse1Bit(one.getDatasByte(), one.getWith(), bmpPath);
+                bmpPaths.add(bmpPath);
+                if (i == bitPicLists.size() -1 ) {
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(bmpPath,true));
+                }else{
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(bmpPath,false));
+                }
+            }
+        } catch (Exception e) {
+            ExceptionApplication.gLogger.info("paser error --> " +e.toString());
+            return null;
+        }
+        return bmpPaths;
+    }
+
+
+
+
+    public static boolean isContainByteArr(byte[] src,byte[] item){
+        if (item.length < 3){
+            return false;
+        }
+        boolean isContain = false;
+        for (int i = 0; i < src.length; i++) {
+            if (src[i] == item[2] && i > 1){
+                if(src[i-1] == item[1] && src[i-2] == item[0]){
+                    isContain = true;
+                }
+            }
+        }
+        return isContain;
+    }
+
+    public static int getByteArrIndex(byte[] src,byte[] item){
+        if (item.length < 3){
+            return -1;
+        }
+        int isContain = -1;
+        for (int i = 0; i < src.length; i++) {
+            if (src[i] == item[2] && i > 1){
+                if(src[i-1] == item[1] && src[i-2] == item[0]){
+                    isContain = i - 2;
+                    return isContain;
+                }
+            }
+        }
+        return isContain;
     }
 
     /**
@@ -595,7 +693,7 @@ public class EpsonParseDemo {
         for (int i = 0; i < lists.size(); i++) {
             PrintAndDatas one_data = lists.get(i);
             if (one_data.isBit){
-                String bmpPath = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/" + "ucast_bit_and_string_" + i + ".bmp";
+                String bmpPath = EpsonPicture.TEMPBITPATH + File.separator + "ucast_bit_and_string_" + UUID.randomUUID().toString().replace("-", "")+"_" +i + ".bmp";
                 byte[] bmpData = one_data.bitDatasByte;
                 int widthNoRate = one_data.bitWidth;
                 int widthWithRate = one_data.getBitWidth();
@@ -606,9 +704,20 @@ public class EpsonParseDemo {
                     bmpData =EpsonPicture.getTwiceHeighData(bmpData , widthWithRate);
                 }
                 saveAsBitmapWithByteDataUse1Bit(bmpData, widthWithRate * 8 , bmpPath);
+                if (i == lists.size() - 1 ) {
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(bmpPath,true));
+                }else{
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(bmpPath,false));
+                }
                 bmps.add(BitmapFactory.decodeFile(bmpPath));
             }else{
-                bmps.add(EpsonPicture.getBitMapByStringReturnBitmap(one_data.getDatas()));
+                Bitmap one = EpsonPicture.getBitMapByStringReturnBitmap(one_data.getDatas());
+                if (i == lists.size() - 1 ) {
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(one,true));
+                }else{
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(one,false));
+                }
+                bmps.add(one);
             }
         }
         return bmps;
@@ -734,8 +843,6 @@ public class EpsonParseDemo {
             fos.close();
 
         } catch (Exception e) {
-            // TODO: handle exception
-
             System.out.println(e.toString());
         }
 

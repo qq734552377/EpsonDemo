@@ -30,6 +30,7 @@ import java.util.UUID;
 public class EpsonPicture {
     public final static String ALBUM_PATH
             = Environment.getExternalStorageDirectory().toString();
+    public static final String TEMPBITPATH = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/temp";
     private final static String BIT_NAME = "/Ucast/ucast.bmp";
 
     private final static int LINE_STRING_NUMBER = 32 ;
@@ -544,7 +545,7 @@ public class EpsonPicture {
 
         try {
             File write_file = new File(path_res);
-            byte[] datas = TurnBytes(BitmapFactory.decodeFile(path));
+            byte[] datas = turnBytes(BitmapFactory.decodeFile(path));
             fos = new FileOutputStream(write_file);
 
             fosToTxt = new FileOutputStream(path_txt);
@@ -723,6 +724,31 @@ public class EpsonPicture {
                 byte value = 0;
                 for (int s = 0; s <= 7; s++) {
                     int a = bitmap.getPixel(j + s, i);
+                    int aa = a & 0xff;
+                    if (aa != 255) {
+                        value |= 1 << s;
+                    }
+                }
+                bt[i * PW / 8 + j / 8] = value;
+            }
+        }
+        return bt;
+    }
+
+    public static byte[] turnBytes(Bitmap bitmap) {
+        int w = bitmap.getWidth();
+        int PW = SomeBitMapHandleWay.PRINT_WIDTH;
+        int copyW = PW < w ? PW : w ;
+        int h = bitmap.getHeight();
+        byte[] bt = new byte[PW / 8 * h];
+        int len = w * h;
+        int[] b = new int[ len ];
+        bitmap.getPixels(b, 0, w, 0, 0, w, h);//取得BITMAP的所有像素点
+        for (int i = 0; i < h; i ++) {
+            for (int j = 0; j < copyW; j = j + 8) {
+                byte value = 0;
+                for (int s = 0; s <= 7; s++) {
+                    int a = b[i * w + j + s];
                     int aa = a & 0xff;
                     if (aa != 255) {
                         value |= 1 << s;

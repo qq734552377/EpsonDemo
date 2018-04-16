@@ -35,6 +35,7 @@ public class SerialPort {
 	private FileOutputStream mFileOutputStream;
 	public static final int PRINTER_TYPE = 1;
 	public static final int USB_TYPE = 2;
+	public static final int KEYBOARD_TYPE = 3;
 
 
 	public SerialPort(File device, int type, int flags) throws SecurityException, IOException {
@@ -61,6 +62,8 @@ public class SerialPort {
 			mFd = openUsbPrint(device.getAbsolutePath(), Config.USB_BAIDRATE, flags);
 		}else if(type == PRINTER_TYPE){
 			mFd = open(device.getAbsolutePath(), Config.PRINT_BAIDRATE, flags);
+		} else if (type == KEYBOARD_TYPE) {
+			mFd = openKeyboard(device.getAbsolutePath(), Config.USB_BAIDRATE, flags);
 		}
 
 		if (mFd == null) {
@@ -85,6 +88,7 @@ public class SerialPort {
 
 	// JNI
 	private native static FileDescriptor openUsbPrint(String path, int baudrate, int flags);
+	private native static FileDescriptor openKeyboard(String path, int baudrate, int flags);
 	private native static FileDescriptor open(String path, int baudrate, int flags);
 	public native void close();
 	static {

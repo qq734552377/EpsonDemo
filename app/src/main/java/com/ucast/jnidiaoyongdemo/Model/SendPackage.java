@@ -1,6 +1,7 @@
 package com.ucast.jnidiaoyongdemo.Model;
 
 
+import com.ucast.jnidiaoyongdemo.Serial.KeyBoardSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 import com.ucast.jnidiaoyongdemo.socket.Memory.NettyChannelMap;
 
@@ -17,11 +18,22 @@ import io.netty.channel.Channel;
  */
 public class SendPackage {
 
-    public static void SendSerialPortBuffer(byte[] buffer) {
+    public static void sendToPrinter(byte[] buffer) {
         OpenPrint print = MermoyPrinterSerial.GetChannel(Config.PrinterSerialName);
         if (print == null)
             return;
         print.Send(buffer);
+    }
+    public static void sendToKeyboard(byte[] buffer) {
+        KeyBoardSerial keyboard = MermoyKeyboardSerial.GetChannel(Config.KeyboardSerialName);
+        if (keyboard == null)
+            return;
+        try {
+            keyboard.output.write(buffer);
+        }catch (Exception e){
+
+        }
+
     }
 
     public static boolean sendAllClient(byte[] Data) {

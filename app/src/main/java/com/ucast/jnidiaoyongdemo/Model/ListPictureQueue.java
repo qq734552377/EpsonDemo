@@ -1,19 +1,14 @@
 package com.ucast.jnidiaoyongdemo.Model;
 
 import android.os.SystemClock;
-import android.provider.Settings;
 
-import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
-import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
 
 import java.util.ArrayList;
 import java.util.List;
-
-import io.netty.channel.Channel;
 
 
 public class ListPictureQueue {
@@ -32,13 +27,13 @@ public class ListPictureQueue {
                         return;
                     PictureModel info = list.get(0);
                     long time = (long) (SystemClock.elapsedRealtime() - info.getOutTime()) / 1000;
-                    if (time < 19)
+                    if (time < 8)
                         return;
                     SendAgain(true);
                 }
             }
 
-        }), 2000L, 10000L);
+        }), 2000L, 2000L);
         timer.initMyTimer().startMyTimer();
     }
 
@@ -90,34 +85,30 @@ public class ListPictureQueue {
         }
     }
 
-    public static int Count() {
-        synchronized (ListPictureQueue.class) {
-            return list.size();
-        }
-    }
 
     public static void SendFirst() {
             if (list.size() <= 0)
                 return;
             PictureModel info = list.get(0);
-            if (info == null || info.BufferPicture.size() <= 0) {
+            if (info == null ) {
                 return;
             }
-            if(info.isCutPapper()){
-                SendPackage.SendSerialPortBuffer(PrinterProtocol.getPrinterCutPaperProtocol());
+            if(info.isCutPapper() && info.BufferPicture.size() <= 0){
+                SendPackage.sendToPrinter(PrinterProtocol.getPrinterCutPaperProtocol());
                 ExceptionApplication.gLogger.info("info cutPapper is true --- > " );
                 return;
             }
-
             byte[] str = info.BufferPicture.get(0);
-            SendPackage.SendSerialPortBuffer(str);
+            info.setOutTime(SystemClock.elapsedRealtime());
+            SendPackage.sendToPrinter(str);
+//        ExceptionApplication.gLogger.info(" send First Picture first time： -->" + System.currentTimeMillis());
 //            ExceptionApplication.gLogger.info(" send First Picture first time： " +  MyTools.millisToDateString(System.currentTimeMillis()));
 //            ExceptionApplication.gLogger.info(EpsonParseDemo.printHexString(str));
 //            for (int i = 0; i < info.BufferPicture.size(); i++) {
 //                byte[] str = info.BufferPicture.get(i);
 //                info.setCurtNum(i + 1);
 //                info.setOutTime(SystemClock.elapsedRealtime());
-//                SendPackage.SendSerialPortBuffer(str);
+//                SendPackage.sendToPrinter(str);
 //                ExceptionApplication.gLogger.info((i+ 1) + " --> cur pakage  " +  System.currentTimeMillis());
 //                try{
 //                    Thread.sleep(52);
@@ -125,7 +116,7 @@ public class ListPictureQueue {
 //
 //                }
 //                if (i == info.BufferPicture.size() - 1 ){
-//                    SendPackage.SendSerialPortBuffer(PrinterProtocol.getPrinterCutPaperProtocol());
+//                    SendPackage.sendToPrinter(PrinterProtocol.getPrinterCutPaperProtocol());
 //                    try{
 //                        Thread.sleep(1997);
 //                    }catch (Exception e){
@@ -141,16 +132,17 @@ public class ListPictureQueue {
         if (list.size() <= 0)
             return;
         PictureModel info = list.get(0);
-        if (info == null || info.BufferPicture.size() <= 0) {
+        if (info == null) {
             return;
         }
-        if(info.isCutPapper()){
-            SendPackage.SendSerialPortBuffer(PrinterProtocol.getPrinterCutPaperProtocol());
+        if(info.isCutPapper() && info.BufferPicture.size() <= 0){
+            SendPackage.sendToPrinter(PrinterProtocol.getPrinterCutPaperProtocol());
             ExceptionApplication.gLogger.info("info cutPapper is true --- > " );
             return;
         }
         byte[] str = info.BufferPicture.get(0);
-        SendPackage.SendSerialPortBuffer(str);
+        info.setOutTime(SystemClock.elapsedRealtime());
+        SendPackage.sendToPrinter(str);
         if(isSendAgain) {
 //            ExceptionApplication.gLogger.info(" send same Picture first package");
         }else {
@@ -169,8 +161,8 @@ public class ListPictureQueue {
             return;
         try {
             PictureModel info = list.get(0);
-            if(info.isCutPapper()){
-                SendPackage.SendSerialPortBuffer(PrinterProtocol.getPrinterCutPaperProtocol());
+            if(info.isCutPapper() && info.BufferPicture.size() <= 0){
+                SendPackage.sendToPrinter(PrinterProtocol.getPrinterCutPaperProtocol());
                 ExceptionApplication.gLogger.info("info cutPapper is true --- > " );
                 return;
             }
@@ -181,21 +173,24 @@ public class ListPictureQueue {
                 //设置打印的当前包序号
                 info.setCurtNum(index);
                 info.setOutTime(SystemClock.elapsedRealtime());
-                SendPackage.SendSerialPortBuffer(buffer);
-//                ExceptionApplication.gLogger.info("cur send pakage number --- > " + index + "   " );
+                SendPackage.sendToPrinter(buffer);
             }
             if (baoSize == index) {
                 if (list.size() <= 0)
                     return;
                 //打完一张图片切纸
-                SendPackage.SendSerialPortBuffer(PrinterProtocol.getPrinterCutPaperProtocol());
-//                ExceptionApplication.gLogger.info("cutpapper once --- > " + index + "   " );
-                Channel channel = info.getChannel();
-                if(channel!= null && channel.isActive()){
-                    //告诉客户端打印完成
-                    byte[] appdata = Common.GetFormat("1201", 1, 1, new String[]{true ? "0" : "1"});
-                    SendPackage.ChannelSendBuffer(channel,appdata);
+                if (info.isCutPapper()) {
+                    SendPackage.sendToPrinter(PrinterProtocol.getPrinterCutPaperProtocol());
+                }else {
+                    list.remove(0);
+                    SendAgain(false);
                 }
+//                Channel channel = info.getChannel();
+//                if(channel!= null && channel.isActive()){
+//                    //告诉客户端打印完成
+//                    byte[] appdata = Common.GetFormat("1201", 1, 1, new String[]{true ? "0" : "1"});
+//                    SendPackage.ChannelSendBuffer(channel,appdata);
+//                }
 
                 //改为在收到切纸回复后  发送下一张图片
 //                Remove();

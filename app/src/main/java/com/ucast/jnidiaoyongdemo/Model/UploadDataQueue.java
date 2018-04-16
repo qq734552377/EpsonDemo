@@ -2,12 +2,14 @@ package com.ucast.jnidiaoyongdemo.Model;
 
 import android.os.SystemClock;
 
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.db.UploadDBHelper;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,7 @@ public class UploadDataQueue {
                     if (list.size() <= 0)
                         return;
                     long time = (long) (SystemClock.elapsedRealtime() - lastUploadTime) / 1000;
-                    if (time < 30) {
+                    if (time < 60) {
                         return;
                     }
                     sendAgain();
@@ -51,8 +53,20 @@ public class UploadDataQueue {
         if (temList != null){
             list.addAll(temList);
         }
+        deleteDirectory(new File(EpsonPicture.TEMPBITPATH));
     }
-
+    //删除文件夹
+    private static void deleteDirectory(File file) {
+        if (!file.exists()){
+            file.mkdir();
+            return;
+        }
+        File[] files = file.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            f.delete();
+        }
+    }
 
     public static void removeOne() {
         if (list.size() <= 0) {
@@ -72,6 +86,12 @@ public class UploadDataQueue {
     }
 
     private static void uploadOneData(UploadData one){
+        if (one.getData() == null && !new File(one.getPath()).exists()){
+            UploadDBHelper.getInstance().updateIsUploadById(true,one.getId());
+            removeOne();
+            sendAgain();
+            return;
+        }
         if (one.getType() == UploadData.PATH_TYPE){
             MyTools.uploadFile(one.getPath(), YinlianHttpRequestUrl.UPLOADFILEURL);
         }else{
@@ -96,7 +116,7 @@ public class UploadDataQueue {
                 sendAgain();
             }else {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(30000);
                     sendAgain();
                 } catch (InterruptedException e) {
                     e.printStackTrace();

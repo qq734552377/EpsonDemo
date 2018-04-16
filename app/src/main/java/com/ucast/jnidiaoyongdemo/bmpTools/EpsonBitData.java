@@ -2,24 +2,33 @@ package com.ucast.jnidiaoyongdemo.bmpTools;
 
 public class EpsonBitData {
 	public int with = 384;
-	public String datas;
+	public String stringDatas;
+	public byte[] datasByte = null;
 	public int getWith() {
 		return with;
 	}
 	public void setWith(int with) {
 		this.with = with;
 	}
-	public String getDatas() {
-		return datas;
+	public String getStringDatas() {
+		return stringDatas;
 	}
-	public void setDatas(String datas) {
-		this.datas = datas.trim();
+	public void setStringDatas(String stringDatas) {
+		this.stringDatas = stringDatas.trim();
 	}
 
-	public byte[] getByteDatas() {
-		if(this.datas == null)
+	public byte[] getDatasByte() {
+		return datasByte;
+	}
+
+	public void setDatasByte(byte[] datasByte) {
+		this.datasByte = datasByte;
+	}
+
+	public byte[] getByteFromStringDatas() {
+		if(this.stringDatas == null)
 			return null;
-		String [] bytes = this.datas.trim().split(" ");
+		String [] bytes = this.stringDatas.trim().split(" ");
 		byte [] data =new byte[bytes.length];
 		int data_index = -1;
 		for (int i = 0; i < bytes.length; i++) {
@@ -45,10 +54,22 @@ public class EpsonBitData {
 		return data;
 	}
 	
-	public void addDatas(String newDatas) {
-		if (datas == null) {
-			this.datas = newDatas.trim();
+	public void addStringDatas(String newDatas) {
+		if (this.stringDatas == null) {
+			this.stringDatas = newDatas.trim();
 		}
-		this.datas = this.datas + " " + newDatas.trim();
+		this.stringDatas = this.stringDatas + " " + newDatas.trim();
 	}
+	public void addDatasByte(byte[] newDatas) {
+		if (this.datasByte == null){
+			this.datasByte = newDatas;
+		}
+		byte[] tem = new byte[this.datasByte.length];
+		System.arraycopy(this.datasByte,0,tem,0,this.datasByte.length);
+		this.datasByte = new byte[newDatas.length + tem.length];
+		System.arraycopy(tem,0,this.datasByte,0,tem.length);
+		System.arraycopy(newDatas,0,this.datasByte,tem.length,newDatas.length);
+	}
+
+
 }

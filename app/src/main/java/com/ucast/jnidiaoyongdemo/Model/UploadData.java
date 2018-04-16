@@ -7,9 +7,9 @@ package com.ucast.jnidiaoyongdemo.Model;
 public class UploadData {
     private int id = -1;
     private int type ;
-    private String path;
+    private String path = null;
     private String upLoadURL = null;
-    private String data;
+    private String data = null;
     private boolean isUploadSuccess = false;
 
     public static final int UPLOAD_FAIL = 0;

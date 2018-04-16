@@ -10,13 +10,13 @@ public class PictureModel {
 
 	private  long outTime;//接收该包时的时间
 
-	private String number; //当前包名称
+	private String number ; //当前包名称
 
-	private int total;//总包数
+	private int total = 0;//总包数
 
 	private int curtNum = 0;//表示当前打印包号
-	private String path;
-	private Channel channel;
+	private String path = null;
+	private Channel channel = null;
 	private boolean isCutPapper;
 
 	public List<byte[]> BufferPicture=new ArrayList();

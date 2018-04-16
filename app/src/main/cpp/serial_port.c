@@ -152,7 +152,7 @@ JNIEXPORT jobject JNICALL Java_com_ucast_jnidiaoyongdemo_Serial_SerialPort_open
 }
 
 
-JNIEXPORT jobject JNICALL Java_com_ucast_jnidiaoyongdemo_Serial_SerialPort_openPrint
+JNIEXPORT jobject JNICALL Java_com_ucast_jnidiaoyongdemo_Serial_SerialPort_openUsbPrint
         (JNIEnv *env, jclass thiz, jstring path, jint baudrate, jint flags)
 {
     int fd;
@@ -173,6 +173,44 @@ JNIEXPORT jobject JNICALL Java_com_ucast_jnidiaoyongdemo_Serial_SerialPort_openP
             /* TODO: throw an exception */
             return NULL;
         }
+    }
+
+    /* Create a corresponding file descriptor */
+    {
+        jclass cFileDescriptor = (*env)->FindClass(env, "java/io/FileDescriptor");
+        jmethodID iFileDescriptor = (*env)->GetMethodID(env, cFileDescriptor, "<init>", "()V");
+        jfieldID descriptorID = (*env)->GetFieldID(env, cFileDescriptor, "descriptor", "I");
+        mFileDescriptor = (*env)->NewObject(env, cFileDescriptor, iFileDescriptor);
+        (*env)->SetIntField(env, mFileDescriptor, descriptorID, (jint)fd);
+    }
+
+    return mFileDescriptor;
+}
+JNIEXPORT jobject JNICALL Java_com_ucast_jnidiaoyongdemo_Serial_SerialPort_openKeyboard
+        (JNIEnv *env, jclass thiz, jstring path, jint baudrate, jint flags)
+{
+    int fd;
+    jobject mFileDescriptor;
+
+    /* Opening device */
+    {
+        jboolean iscopy;
+        const char *path_utf = (*env)->GetStringUTFChars(env, path, &iscopy);
+        fd = open (path_utf, O_RDWR);
+        (*env)->ReleaseStringUTFChars(env, path, path_utf);
+        if (fd == -1)
+        {
+            LOGE("Cannot open port");
+            return NULL;
+        }
+//        struct termios save, current;
+//        tcgetattr(fd, &save);
+//        current = save;
+//        current.c_lflag &= ~ICANON;
+//        current.c_lflag &= ~ECHO;
+//        current.c_cc[VMIN] = 1;
+//        current.c_cc[VTIME] = 0;
+//        tcsetattr(fd, TCSANOW, &current);
     }
 
     /* Create a corresponding file descriptor */

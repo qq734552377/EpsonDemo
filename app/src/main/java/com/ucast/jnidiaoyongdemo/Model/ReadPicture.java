@@ -6,6 +6,7 @@ import android.os.SystemClock;
 import android.provider.Settings;
 
 
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
@@ -64,16 +65,31 @@ public class ReadPicture {
 
     private void OnRun() {
         BitmapWithOtherMsg item = GetItem();
-
         try {
             if (item != null) {
                 String pathName = item.getPath();
-                byte[] pictureByte = getBmpByteFromBMPFile(item.getPath());//转换byte数组
-                //解析获得了一张图片的完整信息PictureModel
-                PictureModel info = WholeBytes(pictureByte);
-                info.setPath(pathName);
+                Bitmap bitmap = item.getBitmap();
+                byte[] pictureByte = null;
+                PictureModel info = null;
+                if (pathName != null) {
+                    //转换byte数组
+                    pictureByte = getBmpByteFromBMPFile(pathName);
+                    //解析获得了一张图片的完整信息PictureModel
+                    info = WholeBytes(pictureByte);
+                    info.setPath(pathName);
+                }else if(bitmap != null){
+                    ExceptionApplication.gLogger.info("paser one bit before -->" + System.currentTimeMillis());
+                    pictureByte = EpsonPicture.turnBytes(bitmap);
+                    ExceptionApplication.gLogger.info("paser one bit after -->" + System.currentTimeMillis());
+                    //解析获得了一张图片的完整信息PictureModel
+                    info = WholeBytes(pictureByte);
+                    info.setPath(pathName);
+                }else{
+                    info = new PictureModel();
+                }
                 if(item.getChannel() != null)
                     info.setChannel(item.getChannel());
+                info.setCutPapper(item.isCutPapper());
                 //接收完数据数据后 开始加入到打印队列里并发送
                 ListPictureQueue.Add(info);
             } else {
@@ -220,13 +236,13 @@ public class ReadPicture {
         //不是1位图数据
         if (bitCount != 1) {
             ExceptionApplication.gLogger.error("Bitmap is not 1 bit ! Paser bitCount = " + bitCount);
-            return EpsonPicture.TurnBytes(BitmapFactory.decodeFile(path));
+            return EpsonPicture.turnBytes(BitmapFactory.decodeFile(path));
         }
         int bmpLen = allFileData.length - 62;
         w = w / 8;
         if( bmpLen != w * h){
             ExceptionApplication.gLogger.error("Bitmap File data length is wrong");
-            return EpsonPicture.TurnBytes(BitmapFactory.decodeFile(path));
+            return EpsonPicture.turnBytes(BitmapFactory.decodeFile(path));
         }
         long oldTime = System.currentTimeMillis();
         byte[] bmpData = new byte[bmpLen];//1位图bmp的所有数据

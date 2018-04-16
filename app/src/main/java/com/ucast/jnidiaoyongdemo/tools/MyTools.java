@@ -205,6 +205,9 @@ public class MyTools {
     }
 
     public static void uploadFile(String path, String url){
+        if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
+            return;
+        }
         RequestParams params=new RequestParams(url);
         params.setMultipart(true);
         params.addBodyParameter("work_order_image",new File(path));
@@ -218,7 +221,7 @@ public class MyTools {
 
             @Override
             public void onError(Throwable throwable, boolean b) {
-//                UploadDataQueue.sendNextByResult(false);
+                UploadDataQueue.sendNextByResult(false);
             }
 
             @Override
@@ -232,6 +235,9 @@ public class MyTools {
         });
     }
     public static void uploadData(String data, String url){
+        if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
+            return;
+        }
         RequestParams params=new RequestParams(url);
 //        params.setMultipart(true);
         params.addBodyParameter("Content",data);
@@ -260,6 +266,9 @@ public class MyTools {
         });
     }
     public static void uploadDataWithFile(String data, String path,String url){
+        if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
+            return;
+        }
         RequestParams params=new RequestParams(url);
         params.setMultipart(true);
         params.addBodyParameter("work_order_image",new File(path));

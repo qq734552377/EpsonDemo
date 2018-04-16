@@ -16,16 +16,20 @@ import android.util.Log;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
+import com.ucast.jnidiaoyongdemo.Model.MermoyKeyboardSerial;
 import com.ucast.jnidiaoyongdemo.Model.MermoyPrinterSerial;
 import com.ucast.jnidiaoyongdemo.Model.MermoyUsbSerial;
+import com.ucast.jnidiaoyongdemo.Model.MermoyUsbWithByteSerial;
 import com.ucast.jnidiaoyongdemo.Model.MsCardProtocol;
 import com.ucast.jnidiaoyongdemo.Model.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.UploadDataQueue;
+import com.ucast.jnidiaoyongdemo.Serial.KeyBoardSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 import com.ucast.jnidiaoyongdemo.Serial.PrinterSerialRestart;
 import com.ucast.jnidiaoyongdemo.Serial.UsbSerial;
 import com.ucast.jnidiaoyongdemo.Serial.UsbSerialRestart;
+import com.ucast.jnidiaoyongdemo.Serial.UsbWithByteSerial;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.bmpTools.PrintAndDatas;
 import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
@@ -82,9 +86,16 @@ public class UpdateService extends Service {
             print.Send(MsCardProtocol.getOpenMsCardProtocol());
         }
 
-        UsbSerial usbPort = new UsbSerial(Config.UsbSerial,handler);
+        KeyBoardSerial keyBoardSerial = new KeyBoardSerial(Config.KeyboardSerial);
+        keyBoardSerial.Open();
+        MermoyKeyboardSerial.Add(keyBoardSerial);
+
+//        UsbSerial usbPort = new UsbSerial(Config.UsbSerial,handler);
+//        usbPort.Open();
+//        MermoyUsbSerial.Add(usbPort);
+        UsbWithByteSerial usbPort = new UsbWithByteSerial(Config.UsbSerial,handler);
         usbPort.Open();
-        MermoyUsbSerial.Add(usbPort);
+        MermoyUsbWithByteSerial.Add(usbPort);
 
 //        PrinterSerialRestart.StartTimer();
 //        UsbSerialRestart.StartTimer();

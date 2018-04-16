@@ -10,21 +10,25 @@ import io.netty.channel.Channel;
  */
 
 public class BitmapWithOtherMsg {
-    private Bitmap bitmap;
-    private Channel channel;
-    private String path;
-    private boolean isCutPapper;
+    private Bitmap bitmap =null;
+    private Channel channel =null;
+    private String path = null;
+    private boolean isCutPapper = false;
 
     public BitmapWithOtherMsg(String path) {
-//        this.bitmap = BitmapFactory.decodeFile(path);
         this.path = path;
     }
+
     public BitmapWithOtherMsg(boolean isCutPapper) {
         this.isCutPapper = isCutPapper;
     }
-    public BitmapWithOtherMsg(Bitmap bitmap, String path) {
-        this.bitmap = bitmap;
+    public BitmapWithOtherMsg(String path,boolean isCutPapper) {
+        this.isCutPapper = isCutPapper;
         this.path = path;
+    }
+    public BitmapWithOtherMsg(Bitmap bitmap,boolean isCutPapper) {
+        this.bitmap = bitmap;
+        this.isCutPapper = isCutPapper;
     }
     public BitmapWithOtherMsg(Bitmap bitmap, Channel channel, String path) {
         this.bitmap = bitmap;
@@ -41,7 +45,7 @@ public class BitmapWithOtherMsg {
     }
 
     public Bitmap getBitmap() {
-        return BitmapFactory.decodeFile(path);
+        return bitmap;
     }
 
     public void setBitmap(Bitmap bitmap) {
