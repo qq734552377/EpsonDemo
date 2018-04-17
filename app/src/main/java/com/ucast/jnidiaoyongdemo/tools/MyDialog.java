@@ -4,12 +4,18 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 import android.view.WindowManager;
 
 import com.ucast.jnidiaoyongdemo.Model.AppInfo;
+import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Common;
+import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 
 
 /**
@@ -24,24 +30,31 @@ public class MyDialog {
         this.context = context;
     }
 
-    public static Dialog showIsUpdate(String msg){
+    public static Dialog showDialogWithMsg(String msg, final int money){
         AlertDialog.Builder builder=new AlertDialog.Builder(ExceptionApplication.getInstance());
-        builder.setTitle("更新提示");
+        builder.setTitle("提示");
         builder.setMessage(msg);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String str = "@s003,1$";
+                String printMsg = "您消费"+money+"元，免费获得"+(money/100)+".0小时停车券。欢迎下次光临\n" +
+                        "\n" ;
+                Bitmap b = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
+                String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(b,false));
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path),true));
                 dialog.dismiss();
             }
         });
         builder.setNegativeButton("取消", null);
         Dialog alertDialog = builder.create();
-        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
 
 
         return alertDialog;
     }
+
+
 
     public static Dialog showPadIsUpdate(final AppInfo info){
         AlertDialog.Builder builder=new AlertDialog.Builder(ExceptionApplication.getInstance());

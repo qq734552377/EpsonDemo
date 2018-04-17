@@ -13,6 +13,7 @@ import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
@@ -33,6 +34,7 @@ import com.ucast.jnidiaoyongdemo.Serial.UsbWithByteSerial;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.bmpTools.PrintAndDatas;
 import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
+import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
@@ -47,6 +49,7 @@ import org.xutils.x;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -76,8 +79,8 @@ public class UpdateService extends Service {
         notification.flags |= Notification.FLAG_FOREGROUND_SERVICE;
         startForeground(1, notification);
         super.onCreate();
-//        startTimer();
-
+        startTimer();
+        copyCfg("ums.bmp");
         OpenPrint print = new OpenPrint(Config.PrinterSerial);
         boolean isOpen = print.Open();
         MermoyPrinterSerial.Add(print);
@@ -126,19 +129,20 @@ public class UpdateService extends Service {
                 String url= YinlianHttpRequestUrl.TIMEUPDATEURL;
                 getSystemTime(url.trim());
             }
-        }), 1000*60*2L, 1000*30*60L);
+        }), 1000*2L, 1*1000*60L);
         timer.initMyTimer().startMyTimer();
     }
 
     private static final String TAG = "UpdateService";
     public void getSystemTime(String url){
         RequestParams params = new RequestParams(url);
-        x.http().get(params, new Callback.CommonCallback<String>() {
+        params.addBodyParameter("Sn",Config.STATION_ID);
+        x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-                String time=result.replace("\"","").trim();
-                Log.e(TAG, "onSuccess: " +time);
-                setTime(time);
+//                String time=result.replace("\"","").trim();
+                BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
+//                setTime(base.getInfo().replace("\"","").trim());
             }
 
             @Override
@@ -191,6 +195,26 @@ public class UpdateService extends Service {
             e.printStackTrace();
         }
         return time;
+    }
+
+    public  void copyCfg(String picName) {
+        String dirPath = Environment.getExternalStorageDirectory().getPath() + "/"+picName;
+        FileOutputStream os = null;
+        InputStream is = null;
+        int len = -1;
+        try {
+            is = this.getClass().getClassLoader().getResourceAsStream("assets/"+picName);
+            os = new FileOutputStream(dirPath);
+            byte b[] = new byte[1024];
+
+            while ((len = is.read(b)) != -1) {
+                os.write(b, 0, len);
+            }
+
+            is.close();
+            os.close();
+        } catch (Exception e) {
+        }
     }
 
 }

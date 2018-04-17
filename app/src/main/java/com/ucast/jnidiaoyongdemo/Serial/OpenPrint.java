@@ -10,6 +10,8 @@ import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -320,7 +322,7 @@ public class OpenPrint {
                 break;
         }
     }
-
+    private StringBuilder msSB = new StringBuilder();
     private void msDataHandle(byte[] data) {
         int num = data[5] & 0xff;
         int dataLen = (data[7] << 8 & 0xff00) + (data[6] & 0xff);
@@ -328,13 +330,16 @@ public class OpenPrint {
         System.arraycopy(data,8,dataMs,0,dataLen);
         switch (num){
             case 0 :
-                ExceptionApplication.gLogger.info("1 number data :" + new String(dataMs).toString());
+                msSB.delete(0,msSB.length());
+                msSB.append(new String(dataMs));
                 break;
             case 1 :
-                ExceptionApplication.gLogger.info("2 number data :" + new String(dataMs).toString());
+                msSB.append(new String(dataMs));
                 break;
             case 2:
-                ExceptionApplication.gLogger.info("3 number data :" + new String(dataMs).toString());
+                msSB.append(new String(dataMs));
+                EventBus.getDefault().postSticky(msSB.toString());
+                ExceptionApplication.gLogger.info("Mscard data ----->" + msSB.toString());
                 SendPackage.sendToPrinter(MsCardProtocol.getRegisterMsCardProtocol());
                 break;
         }

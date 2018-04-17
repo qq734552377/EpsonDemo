@@ -121,6 +121,9 @@ public class KeyboardSwitch {
                 case '(':
                     KeyboardSwitch.changeByteAndSend((byte)0x02,(byte)0x26);
                     break;
+                case ' ':
+                    KeyboardSwitch.changeByteAndSend((byte)0x00,(byte)0x2C);
+                    break;
 
                 default:
                     if(oneData >= 'a' && oneData <= 'z'){

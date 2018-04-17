@@ -1,12 +1,15 @@
 package com.ucast.jnidiaoyongdemo.tools;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -16,11 +19,17 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
+import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
+import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
 import com.ucast.jnidiaoyongdemo.Model.UploadDataQueue;
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
+import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 
+import org.greenrobot.eventbus.EventBus;
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
@@ -216,12 +225,13 @@ public class MyTools {
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {
+                handleTicket(o.getResult());
                 UploadDataQueue.sendNextByResult(true);
             }
 
             @Override
             public void onError(Throwable throwable, boolean b) {
-                UploadDataQueue.sendNextByResult(false);
+//                UploadDataQueue.sendNextByResult(false);
             }
 
             @Override
@@ -246,6 +256,7 @@ public class MyTools {
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {
+                handleTicket(o.getResult());
                 UploadDataQueue.sendNextByResult(true);
             }
 
@@ -278,6 +289,7 @@ public class MyTools {
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {
+                handleTicket(o.getResult());
                 UploadDataQueue.sendNextByResult(true);
             }
 
@@ -297,6 +309,31 @@ public class MyTools {
             }
         });
     }
+
+    public static void handleTicket(String result){
+        EventBus.getDefault().postSticky(result);
+        BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
+        if (base.getMsgType().equals("Success") && !base.getInfo().equals("")){
+            try {
+                double moneyD = Double.parseDouble(base.getInfo());
+                int money = (int) moneyD;
+                if (money >= 100) {
+//            Dialog d = MyDialog.showDialogWithMsg("您本次消费已满100元，是否打印停车小票？", money);
+//            d.show();
+                String printMsg = "您本次已消费" + money + "元，免费获得" + (money / 100) + ".0小时停车券。\n欢迎下次光临！\n" +
+                        "\n";
+                Bitmap b = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
+                String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
+                ;
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(b, false));
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
+                }
+            }catch (Exception e){
+
+            }
+        }
+    }
+
 
     /*** 获取文件大小 ***/
     public static long getFileSizes(String apkPath) throws Exception {

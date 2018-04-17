@@ -34,6 +34,7 @@ public class EpsonPicture {
     private final static String BIT_NAME = "/Ucast/ucast.bmp";
 
     private final static int LINE_STRING_NUMBER = 32 ;
+    private final static int LINE_BIG_STRING_NUMBER = 21 ;
     private final static int OFFSET_X = 10 ;
     private final static int OFFSET_Y = 40 ;
     private final static int FONT_SIZE = 24 ;
@@ -118,6 +119,29 @@ public class EpsonPicture {
         return bmp;
     }
     /**
+     *  将给定的打印数据生成bmp图片 返回Bitmap
+     * */
+    public static Bitmap getBitMapByStringReturnBigBitmap(String string) {
+        List<String> list = getBigLineStringDatas(string);
+
+        int Height = list.size() * LINE_HEIGHT;
+        Bitmap bmp = Bitmap.createBitmap(384, Height + CUT_PAPER_HEIGHT, Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bmp);
+        canvas.drawColor(Color.WHITE);
+        Paint print = new Paint();
+        print.setColor(Color.BLACK);
+        print.setTextSize(36);
+        Typeface font = Typeface.createFromAsset(ExceptionApplication.getInstance().getAssets(),FONT);
+        print.setTypeface(Typeface.create(font,Typeface.NORMAL));
+        for (int i = 0; i < list.size(); i++) {
+            canvas.drawText(list.get(i), 0, i * LINE_HEIGHT + CUT_PAPER_HEIGHT, print);
+        }
+        canvas.save(Canvas.ALL_SAVE_FLAG);
+        canvas.restore();
+
+        return bmp;
+    }
+    /**
      * 通过字符串获取分行的数据
      *
      * */
@@ -147,7 +171,35 @@ public class EpsonPicture {
         return list;
     }
 
+    /**
+     * 通过字符串获取分行的数据
+     *
+     * */
+    public static List<String> getBigLineStringDatas(String string){
+        String[] dataString = null;
+        dataString = string.replace("\r","").split("\n");
+        List<String> list = new ArrayList<>();
+        List<String> splistlist;
+        for (int i = 0; i < dataString.length; i++) {
+            byte[] one =null;
+            try {
+                one = dataString[i].getBytes("GB18030");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            int len = one == null ? dataString[i].getBytes().length : one.length;
+            if ( len > LINE_BIG_STRING_NUMBER) {
+                splistlist = splitBigString(dataString[i]);
+                for (int t = 0; t < splistlist.size(); t++) {
+                    list.add(splistlist.get(t));
+                }
+            } else {
+                list.add(dataString[i]);
+            }
+        }
 
+        return list;
+    }
 
     /**
      * 拆分字符串
@@ -169,6 +221,35 @@ public class EpsonPicture {
                 offert++;
             }
             if (offert >= LINE_STRING_NUMBER) {
+                list.add(string);
+                string = "";
+                offert = 0;
+            }
+        }
+        list.add(string);
+        return list;
+    }
+
+    /**
+     * 拆分字符串
+     *
+     * @param data
+     * @return
+     */
+    public static List<String> splitBigString(String data) {
+        List<String> list = new ArrayList<>();
+        String string = "";
+        int offert = 0;
+        for (int i = 0; i < data.length(); i++) {
+            String s = data.substring(i, i + 1);
+            if (s.getBytes().length > 1) {
+                string += s;
+                offert = offert + 2;
+            } else {
+                string += s;
+                offert++;
+            }
+            if (offert >= LINE_BIG_STRING_NUMBER) {
                 list.add(string);
                 string = "";
                 offert = 0;

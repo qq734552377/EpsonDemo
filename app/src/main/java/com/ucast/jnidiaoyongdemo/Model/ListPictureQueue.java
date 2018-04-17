@@ -27,13 +27,13 @@ public class ListPictureQueue {
                         return;
                     PictureModel info = list.get(0);
                     long time = (long) (SystemClock.elapsedRealtime() - info.getOutTime()) / 1000;
-                    if (time < 8)
+                    if (time < 10)
                         return;
                     SendAgain(true);
                 }
             }
 
-        }), 2000L, 2000L);
+        }), 2000L, 3000L);
         timer.initMyTimer().startMyTimer();
     }
 

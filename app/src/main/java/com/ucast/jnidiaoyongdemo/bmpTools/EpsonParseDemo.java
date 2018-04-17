@@ -643,6 +643,7 @@ public class EpsonParseDemo {
             if (src[i] == item[2] && i > 1){
                 if(src[i-1] == item[1] && src[i-2] == item[0]){
                     isContain = true;
+                    return isContain;
                 }
             }
         }
@@ -834,10 +835,8 @@ public class EpsonParseDemo {
                     }else{
                         bmpData[destDataIndex] = 0x00;
                     }
-
                 }
             }
-
             fos.write(bmpData);
             fos.flush();
             fos.close();
