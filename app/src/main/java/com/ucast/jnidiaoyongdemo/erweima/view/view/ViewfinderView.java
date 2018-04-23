@@ -42,6 +42,7 @@ import java.util.HashSet;
 public final class ViewfinderView extends View {
 
   private static final int[] SCANNER_ALPHA = {0, 64, 128, 192, 255, 192, 128, 64};
+//  private static final int[] SCANNER_ALPHA = {0, 12, 24, 64, 180, 64, 24, 12};
   private static final long ANIMATION_DELAY = 100L;
   private static final int OPAQUE = 0xFF;
 
@@ -104,6 +105,7 @@ public final class ViewfinderView extends View {
       // Draw a red "laser scanner" line through the middle to show decoding is active
       paint.setColor(laserColor);
       paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
+      //取消中间的竖线
       scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
       int middle = frame.height() / 2 + frame.top;
       canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1, middle + 2, paint);

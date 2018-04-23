@@ -12,6 +12,7 @@ import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 
 
 /**
@@ -39,8 +40,13 @@ public class ReadPicture {
     /// <param name="iObj"></param>
     public void Add(BitmapWithOtherMsg iObj) {
         synchronized (ReadPicture.class) {
-//            ExceptionApplication.gLogger.info(" add one pic to readPicQueue  " +  MyTools.millisToDateString(System.currentTimeMillis()));
-            _mQueues.enqueue(iObj);
+            //获取设置中的是否开启打印
+            String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
+//            ExceptionApplication.gLogger.info("是否开启打印 --->" + isOpenPrint + "<----");
+            boolean isOPen = isOpenPrint.equals(SavePasswd.OPENPRINT) ? true : false;
+            if (isOPen) {
+                _mQueues.enqueue(iObj);
+            }
         }
     }
 
@@ -78,9 +84,7 @@ public class ReadPicture {
                     info = WholeBytes(pictureByte);
                     info.setPath(pathName);
                 }else if(bitmap != null){
-                    ExceptionApplication.gLogger.info("paser one bit before -->" + System.currentTimeMillis());
                     pictureByte = EpsonPicture.turnBytes(bitmap);
-                    ExceptionApplication.gLogger.info("paser one bit after -->" + System.currentTimeMillis());
                     //解析获得了一张图片的完整信息PictureModel
                     info = WholeBytes(pictureByte);
                     info.setPath(pathName);

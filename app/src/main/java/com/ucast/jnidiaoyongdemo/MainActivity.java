@@ -20,6 +20,7 @@ import com.ucast.jnidiaoyongdemo.Serial.SerialPort;
 import com.ucast.jnidiaoyongdemo.db.UploadDBHelper;
 import com.ucast.jnidiaoyongdemo.erweima.view.mysaomiao.CaptureActivity;
 import com.ucast.jnidiaoyongdemo.tools.MyDialog;
+import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -51,9 +52,8 @@ public class MainActivity extends AppCompatActivity {
         Intent ootStartIntent = new Intent(this, UpdateService.class);
         ootStartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         this.startService(ootStartIntent);
-
         sendBtn = findViewById(R.id.send);
-        sendBtn.setVisibility(View.INVISIBLE);
+//        sendBtn.setVisibility(View.INVISIBLE);
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -61,8 +61,8 @@ public class MainActivity extends AppCompatActivity {
 //                String str  = "http://www.ucast.sg";
 //                KeyboardSwitch.sendToKeyboard(str);
 //                MyDialog.showDialogWithMsg("这是对话框",114).show();
-//                String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
-//                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path),true));
+                String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path),true));
             }
         });
 

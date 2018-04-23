@@ -6,6 +6,7 @@ import android.os.Handler;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
+import com.ucast.jnidiaoyongdemo.bmpTools.HandleEpsonDataByUcastPrint;
 import com.ucast.jnidiaoyongdemo.bmpTools.PrintAndDatas;
 import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
@@ -52,7 +53,7 @@ public class UsbWithByteSerial {
         this.handler = handler;
         sBuildBuffer = new StringBuilder();
         Buffer = new byte[1024 * 10];
-        fanhuiBuffer = new byte[1024 * 60];
+        fanhuiBuffer = new byte[1024 * 100];
     }
 
     public Handler getHandler() {
@@ -123,9 +124,9 @@ public class UsbWithByteSerial {
     }
 
     private String cut_paper_1 = "1D 56";
-    private byte[] cut_paper_byte_1 = {0x1D,0x56};
+    public static final byte[] cut_paper_byte_1 = {0x1D,0x56};
     private String cut_paper_2 = "1B 69";
-    private byte[] cut_paper_byte_2 = {0x1B,0x69};
+    public static final byte[] cut_paper_byte_2 = {0x1B,0x69};
 
     private void AnalyticalProtocol(byte[] buffer) {
         try {
@@ -155,7 +156,7 @@ public class UsbWithByteSerial {
                     break;
                 int len = endIndex + 2;
                 byte[] ong_Print_msg = getPrintbyte(startIndex,len);
-                serialString(ong_Print_msg);
+                HandleEpsonDataByUcastPrint.serialString(ong_Print_msg);
                 cutBuffer();
             }
         }catch (Exception e){
@@ -163,21 +164,6 @@ public class UsbWithByteSerial {
         }
     }
 
-    private boolean isContainByteArr(byte[] src,byte[] item){
-        if (item.length < 3){
-            return false;
-        }
-        boolean isContain = false;
-        for (int i = 0; i < src.length; i++) {
-            if (src[i] == item[2] && i > 1){
-                if(src[i-1] == item[1] && src[i-2] == item[0]){
-                    isContain = true;
-                    return isContain;
-                }
-            }
-        }
-        return isContain;
-    }
 
     private int getCutpapperPosition(byte[] b){
         if (b.length < 2){
@@ -322,49 +308,5 @@ public class UsbWithByteSerial {
 
         }
     }
-
-
-
-
-    public void serialString(byte[] string) {
-        try {
-            if(isContainByteArr(string,EpsonParseDemo.STARTEPSONBYTE)){
-                List<String> paths = EpsonParseDemo.parseEpsonBitData(string);
-                String p = SomeBitMapHandleWay.compoundOneBitPic(paths);
-                MyTools.uploadFileByQueue(p);
-                return;
-            }
-            printOne(string);
-        } catch (Exception e) {
-            ExceptionApplication.gLogger.info("paser bitmap error ");
-            e.printStackTrace();
-        }
-    }
-    public void handleToServiceToPrint(String path ,boolean isCutPapper) {
-        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(path,isCutPapper));
-    }
-
-    public String printOne(byte[] data){
-        String path = "" ;
-        List<byte[]> byteList = EpsonParseDemo.getEpsonFromByteArr(data);
-        try {
-            List<PrintAndDatas> printdatas = EpsonParseDemo.parseEpsonByteList(byteList);
-
-            List<PrintAndDatas> goodPrintdatas = EpsonParseDemo.makeListIWant(printdatas);
-
-            List<Bitmap> bmps = EpsonParseDemo.parseEpsonBitDataAndStringReturnBitmap(goodPrintdatas);
-
-            path = SomeBitMapHandleWay.compoundOneBitPicWithBimaps(bmps);
-            if (path != null && path != ""){
-                MyTools.uploadDataAndFileWithURLByQueue(goodPrintdatas.get(0).datas,path , YinlianHttpRequestUrl.UPLOADBASE64URL);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }finally {
-            return path;
-        }
-
-    }
-
 }
 

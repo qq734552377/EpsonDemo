@@ -32,6 +32,7 @@ import com.ucast.jnidiaoyongdemo.R;
 import com.ucast.jnidiaoyongdemo.erweima.view.camera.CameraManager;
 import com.ucast.jnidiaoyongdemo.erweima.view.camera.PlanarYUVLuminanceSource;
 import com.ucast.jnidiaoyongdemo.erweima.view.mysaomiao.CaptureActivity;
+import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
 import java.util.Hashtable;
 
@@ -74,6 +75,7 @@ final class DecodeHandler extends Handler {
 
     if(CaptureActivity.ISPORTRAIT){
         //竖屏的一些解码方式
+      ExceptionApplication.gLogger.info(" decode length -->" + data.length + "<-- befroe->" + System.currentTimeMillis());
         byte[] rotatedData = new byte[data.length];
         for (int y = 0; y < height; y++) {
           for (int x = 0; x < width; x++)
@@ -83,6 +85,7 @@ final class DecodeHandler extends Handler {
         width = height;
         height = tmp;
         data = rotatedData;
+      ExceptionApplication.gLogger.info(" decode after->" + System.currentTimeMillis());
     }
 
     long start = System.currentTimeMillis();

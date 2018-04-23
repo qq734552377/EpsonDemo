@@ -123,8 +123,10 @@ public final class CameraManager {
   public void openDriver(SurfaceHolder holder) throws IOException {
     if (camera == null) {
       if (CaptureActivity.CAMERAID == 0){
+        //侧面的摄像头
         camera = Camera.open(0);
       }else{
+        //前面的摄像头
         camera = Camera.open(1);
       }
 
@@ -134,10 +136,14 @@ public final class CameraManager {
       camera.setPreviewDisplay(holder);
 
 
-      if (!initialized) {
-        initialized = true;
-        configManager.initFromCameraParameters(camera);
-      }
+//      if (!initialized) {
+//        initialized = true;
+//        configManager.initFromCameraParameters(camera);
+//      }
+      //银联设备改 每次都重新初始化
+      configManager.initFromCameraParameters(camera);
+
+
       configManager.setDesiredCameraParameters(camera);
 
  //     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -146,8 +152,6 @@ public final class CameraManager {
 //        FlashlightManager.enableFlashlight();
 //      }
 //      FlashlightManager.enableFlashlight();
-      //银联设备
-//      startPreview();
     }
   }
 

@@ -1,4 +1,4 @@
-package com.ucast.jnidiaoyongdemo.socket;
+package com.ucast.jnidiaoyongdemo.socket.serviceforclient;
 
 
 import com.ucast.jnidiaoyongdemo.socket.Memory.NettyChannelMap;
@@ -63,7 +63,6 @@ public class TcpServerHandle extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
             throws Exception {
         ctx.close();
-        //System.out.println("服务器异常退出" + cause.getMessage());
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.ucast.jnidiaoyongdemo.socket;
+package com.ucast.jnidiaoyongdemo.socket.serviceforclient;
 
 
 import com.ucast.jnidiaoyongdemo.socket.MessageCallback.ReplyToClientCallbackHandle;

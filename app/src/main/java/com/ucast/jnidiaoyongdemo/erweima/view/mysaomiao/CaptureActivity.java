@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -61,7 +62,11 @@ public class CaptureActivity extends Activity implements Callback {
         setContentView(R.layout.activity_capture);
         Intent intent = getIntent();
         CAMERAID = intent.getIntExtra(CAMERAKEY, 0);
-//        ISPORTRAIT = CAMERAID == 0 ? true : false;
+
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//横屏
+        ISPORTRAIT = false;
+
 
         // 初始化 CameraManager
         CameraManager.init(getApplication());

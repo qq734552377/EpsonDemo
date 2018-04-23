@@ -185,7 +185,6 @@ public class SomeBitMapHandleWay {
     }
 
     public static String compoundOneBitPic(List<String>  paths){
-
         String path = "";
         int pathNum = paths.size();
         if ( pathNum< 1) {

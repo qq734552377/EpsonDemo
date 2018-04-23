@@ -50,7 +50,7 @@ public class CrashHandler implements UncaughtExceptionHandler
     private static final String STACK_TRACE = "STACK_TRACE";
     /** 错误报告文件的扩展名 */
     private static final String CRASH_REPORTER_EXTENSION = ".txt";
-    private final static String ALBUM_PATH= Environment.getExternalStorageDirectory().toString()+"/Ucast/pad_test";
+    public final static String ALBUM_PATH= Environment.getExternalStorageDirectory().toString()+"/Ucast/ucastprint";
 
 
     /** 保证只有一个CrashHandler实例 */

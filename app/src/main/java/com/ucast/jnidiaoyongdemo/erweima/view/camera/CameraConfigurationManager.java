@@ -80,9 +80,29 @@ final class CameraConfigurationManager {
 //      cameraResolution = getCameraResolution(parameters, screenResolution);
 //    }
 
-    //银联设备单独设置的参数
-    cameraResolution = new Point(640,480);
-    Log.d(TAG, "Camera resolution: " + screenResolution);
+    if(CaptureActivity.CAMERAID == 0){
+      //侧面的摄像头
+      cameraResolution = new Point(640,480);
+    }else{
+      //前面的摄像头
+    if(CaptureActivity.ISPORTRAIT){
+        //为竖屏添加
+        Point screenResolutionForCamera = new Point();
+        screenResolutionForCamera.x = screenResolution.x;
+        screenResolutionForCamera.y = screenResolution.y;
+        if (screenResolution.x < screenResolution.y) {
+          screenResolutionForCamera.x = screenResolution.y;
+          screenResolutionForCamera.y = screenResolution.x;
+        }
+        // 下句第二参数要根据竖屏修改
+        cameraResolution = getCameraResolution(parameters, screenResolutionForCamera);
+      }else{
+        //横屏下参数
+        cameraResolution = getCameraResolution(parameters, screenResolution);
+      }
+    }
+
+    Log.d(TAG, "Camera resolution: " + cameraResolution);
   }
 
   /**
@@ -95,17 +115,17 @@ final class CameraConfigurationManager {
     Camera.Parameters parameters = camera.getParameters();
 
     if(CaptureActivity.CAMERAID == 0){
-        //竖屏下旋转90
-      camera.setDisplayOrientation(90);
+        //侧面的摄像头
+      camera.setDisplayOrientation(0);
     }else{
-        //横屏下旋转90
-      camera.setDisplayOrientation(180);
+        //前面的摄像头
+      camera.setDisplayOrientation(270);
     }
 
     Log.d(TAG, "Setting preview size: " + cameraResolution);
     parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
 //    setFlash(parameters);
-//    setZoom(parameters);
+    setZoom(parameters);
 //    setSharpness(parameters);
     camera.setParameters(parameters);
   }
