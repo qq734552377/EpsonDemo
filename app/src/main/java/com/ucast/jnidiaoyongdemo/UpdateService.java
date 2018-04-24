@@ -1,10 +1,8 @@
 package com.ucast.jnidiaoyongdemo;
 
-import android.app.Dialog;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -16,43 +14,30 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
-import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
-import com.ucast.jnidiaoyongdemo.Model.MermoyKeyboardSerial;
-import com.ucast.jnidiaoyongdemo.Model.MermoyPrinterSerial;
-import com.ucast.jnidiaoyongdemo.Model.MermoyUsbSerial;
-import com.ucast.jnidiaoyongdemo.Model.MermoyUsbWithByteSerial;
-import com.ucast.jnidiaoyongdemo.Model.MsCardProtocol;
-import com.ucast.jnidiaoyongdemo.Model.PrinterProtocol;
+import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyKeyboardSerial;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyPrinterSerial;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyUsbWithByteSerial;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.MsCardProtocol;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
-import com.ucast.jnidiaoyongdemo.Model.UploadDataQueue;
+import com.ucast.jnidiaoyongdemo.queue_ucast.UploadDataQueue;
 import com.ucast.jnidiaoyongdemo.Serial.KeyBoardSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
-import com.ucast.jnidiaoyongdemo.Serial.PrinterSerialRestart;
-import com.ucast.jnidiaoyongdemo.Serial.UsbSerial;
-import com.ucast.jnidiaoyongdemo.Serial.UsbSerialRestart;
 import com.ucast.jnidiaoyongdemo.Serial.UsbWithByteSerial;
-import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
-import com.ucast.jnidiaoyongdemo.bmpTools.PrintAndDatas;
-import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
 import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
-import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
-import com.ucast.jnidiaoyongdemo.tools.MyDialog;
-import com.ucast.jnidiaoyongdemo.tools.MyTools;
-import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 
 /**
@@ -93,16 +78,14 @@ public class UpdateService extends Service {
         keyBoardSerial.Open();
         MermoyKeyboardSerial.Add(keyBoardSerial);
 
-//        UsbSerial usbPort = new UsbSerial(Config.UsbSerial,handler);
-//        usbPort.Open();
-//        MermoyUsbSerial.Add(usbPort);
-        UsbWithByteSerial usbPort = new UsbWithByteSerial(Config.UsbSerial,handler);
+
+        UsbWithByteSerial usbPort = new UsbWithByteSerial(Config.UsbSerial);
         usbPort.Open();
         MermoyUsbWithByteSerial.Add(usbPort);
 
 //        PrinterSerialRestart.StartTimer();
 //        UsbSerialRestart.StartTimer();
-//        ListPictureQueue.StartTimer();
+        ListPictureQueue.StartTimer();
         UploadDataQueue.StartTimer();
         ReadPictureManage.GetInstance();
 
@@ -206,11 +189,9 @@ public class UpdateService extends Service {
             is = this.getClass().getClassLoader().getResourceAsStream("assets/"+picName);
             os = new FileOutputStream(dirPath);
             byte b[] = new byte[1024];
-
             while ((len = is.read(b)) != -1) {
                 os.write(b, 0, len);
             }
-
             is.close();
             os.close();
         } catch (Exception e) {

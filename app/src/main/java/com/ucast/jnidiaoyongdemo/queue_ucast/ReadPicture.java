@@ -1,17 +1,17 @@
-package com.ucast.jnidiaoyongdemo.Model;
+package com.ucast.jnidiaoyongdemo.queue_ucast;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.SystemClock;
-import android.provider.Settings;
 
 
-import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
+import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
+import com.ucast.jnidiaoyongdemo.Model.Common;
+import com.ucast.jnidiaoyongdemo.Model.PictureModel;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
-import com.ucast.jnidiaoyongdemo.tools.MyTools;
 import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 
 

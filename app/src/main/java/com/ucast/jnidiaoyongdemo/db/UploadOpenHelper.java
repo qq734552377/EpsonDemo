@@ -26,7 +26,7 @@ public class UploadOpenHelper extends SQLiteOpenHelper {
 
 	/**创建数据库*/
 	public void onCreate(SQLiteDatabase db) {
-		// TODO Auto-generated method stub
+		// Auto-generated method stub
 		db.execSQL("create table " + TABLENAME + " ("
 				+ UPload_ID_KEY +" INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ UPload_TYPE_KEY + " INTEGER,"

@@ -2,9 +2,9 @@ package com.ucast.jnidiaoyongdemo.Serial;
 
 import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
-import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
-import com.ucast.jnidiaoyongdemo.Model.MsCardProtocol;
-import com.ucast.jnidiaoyongdemo.Model.PrinterProtocol;
+import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.MsCardProtocol;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
@@ -40,11 +40,14 @@ public class OpenPrint {
     private int offSet = 0;
     //用于反应当前应截取的位置
     private int cutPosition = 0;
+    //设置存放消息数组的设定长度
+    private int fanhuiBufferLen = 1024 ;
+
 
     public OpenPrint(String path) {
         Path = path;
         Buffer = new byte[1024];
-        fanhuiBuffer = new byte[1024];
+        fanhuiBuffer = new byte[fanhuiBufferLen];
     }
 
     public boolean Open() {
@@ -227,6 +230,12 @@ public class OpenPrint {
     private void cutBuffer() {
         System.arraycopy(fanhuiBuffer,cutPosition,fanhuiBuffer,0,offSet - cutPosition);
         offSet = offSet - cutPosition;
+        if(fanhuiBuffer.length > fanhuiBufferLen && offSet < fanhuiBufferLen/2){
+            byte[] temp = new byte[offSet];
+            System.arraycopy(fanhuiBuffer,0,temp,0,offSet);
+            fanhuiBuffer = new byte[fanhuiBufferLen];
+            System.arraycopy(temp,0,fanhuiBuffer,0,offSet);
+        }
     }
 
 

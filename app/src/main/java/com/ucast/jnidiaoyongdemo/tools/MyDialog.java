@@ -49,8 +49,6 @@ public class MyDialog {
         builder.setNegativeButton("取消", null);
         Dialog alertDialog = builder.create();
         alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
-
-
         return alertDialog;
     }
 
@@ -63,7 +61,7 @@ public class MyDialog {
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO 安装操作
+                //安装操作
                 MyTools.detele(info.getPackageName());
                 MyTools.install( Environment.getExternalStorageDirectory().toString()+"/"+info.getAppName()+".apk");
                 Log.e("", "onClick  开始安装 ");
@@ -72,7 +70,7 @@ public class MyDialog {
         });
         builder.setNegativeButton("取消", null);
         Dialog alertDialog = builder.create();
-        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
 
 
         return alertDialog;
@@ -90,7 +88,7 @@ public class MyDialog {
         });
 
         Dialog alertDialog = builder.create();
-        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
 
         return alertDialog;
     }
@@ -107,7 +105,7 @@ public class MyDialog {
         });
 
         Dialog alertDialog = builder.create();
-        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
 
         return alertDialog;
     }

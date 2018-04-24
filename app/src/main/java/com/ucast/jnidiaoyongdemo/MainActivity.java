@@ -14,13 +14,10 @@ import android.widget.Toast;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
-import com.ucast.jnidiaoyongdemo.Serial.UsbSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 import com.ucast.jnidiaoyongdemo.Serial.SerialPort;
 import com.ucast.jnidiaoyongdemo.db.UploadDBHelper;
 import com.ucast.jnidiaoyongdemo.erweima.view.mysaomiao.CaptureActivity;
-import com.ucast.jnidiaoyongdemo.tools.MyDialog;
-import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -32,11 +29,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private UsbSerial usbPort;
-    private OpenPrint print;
-    private SerialPort ser;
-    private InputStream intput;
-    private OutputStream output;
     private Button sendBtn ;
     private TextView tv;
     private TextView msTv;

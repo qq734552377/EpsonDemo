@@ -3,6 +3,8 @@ package com.ucast.jnidiaoyongdemo.Model;
 
 import com.ucast.jnidiaoyongdemo.Serial.KeyBoardSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyKeyboardSerial;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyPrinterSerial;
 import com.ucast.jnidiaoyongdemo.socket.Memory.NettyChannelMap;
 import com.ucast.jnidiaoyongdemo.socket.Memory.NettyClientMap;
 import com.ucast.jnidiaoyongdemo.socket.net_print.NioTcpClient;

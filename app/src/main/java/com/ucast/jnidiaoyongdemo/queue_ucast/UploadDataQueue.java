@@ -1,7 +1,8 @@
-package com.ucast.jnidiaoyongdemo.Model;
+package com.ucast.jnidiaoyongdemo.queue_ucast;
 
 import android.os.SystemClock;
 
+import com.ucast.jnidiaoyongdemo.Model.UploadData;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.db.UploadDBHelper;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;

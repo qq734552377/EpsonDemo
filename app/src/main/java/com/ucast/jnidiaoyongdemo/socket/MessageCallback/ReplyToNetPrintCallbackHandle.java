@@ -6,7 +6,7 @@ import android.os.Environment;
 
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Common;
-import com.ucast.jnidiaoyongdemo.Model.ReadPicture;
+import com.ucast.jnidiaoyongdemo.queue_ucast.ReadPicture;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.socket.Message.Heartbeat;

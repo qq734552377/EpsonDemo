@@ -198,17 +198,9 @@ public class EpsonParseDemo {
         PrintAndDatas one_data = null;
         for (int i = 0; i < lists.size(); i++) {
             byte[] b = lists.get(i);
-//
-//            while (b.length <= 7 && b[b.length - 1] == 0x0A) {
-//                byte[] b_tem = new byte[b.length - 1];
-//                System.arraycopy(b, 0, b_tem, 0, b.length - 1);
-//                b = null;
-//                b = b_tem;
-//            }
             if (one_data == null) {
                 one_data = new PrintAndDatas();
             }
-
             switch (b.length) {
                 case 2:
                     //目前可以忽略
@@ -216,19 +208,6 @@ public class EpsonParseDemo {
                 case 3:
                     setPrintAndDataWithEpson(one_data, b);
                     break;
-//                case 4:
-//                    //目前可以忽略
-//                    continue;
-//                case 5:
-//                    //目前可以忽略
-//                    continue;
-//                case 6:
-//                    //目前可以忽略
-//                    continue;
-//                case 7:
-//                    //目前可以忽略
-//                    continue;
-
                 default:
                     if (b.length > 3) {
                         int position = 0;
@@ -244,45 +223,6 @@ public class EpsonParseDemo {
                                     one_data = null;
                                     break;
                                 }
-
-//                            if(b[j] == 0x76 && b[j -1] == 0x1D){//是位图数据
-//                                position = j + 7;
-//                                byte[] stringDatas = new byte[b.length - position];
-//                                System.arraycopy(b, position, stringDatas, 0, stringDatas.length);
-//
-//                                int mode = b[3] & 0xFF;
-//                                int with = (b[4] & 0xFF) + (b[5] << 8 & 0xff00);
-//                                int height = (b[6] & 0xFF) + (b[7] << 8 & 0xff00);
-//
-//                                int widthRate = 1;
-//                                int heightRate = 1;
-//
-//                                if (mode == 3 || mode == 51){
-//                                    widthRate = 2;
-//                                    heightRate = 2;
-//                                }else if(mode == 2 || mode == 50){
-//                                    widthRate = 1;
-//                                    heightRate = 2;
-//                                }else if(mode == 1 || mode == 49){
-//                                    widthRate = 2;
-//                                    heightRate = 1;
-//                                }else {
-//                                    widthRate = 1;
-//                                    heightRate = 1;
-//                                }
-//
-//                                one_data.isBit = true ;
-//                                one_data.bitWidthRate = widthRate;
-//                                one_data.bitHeightRate = heightRate;
-//                                one_data.bitWidth = with;
-//                                one_data.bitHeight = height;
-//                                one_data.setBitDatasByte(stringDatas);
-//
-//                                printLists.add(one_data);
-//                                one_data = null;
-//
-//                                break;
-//                            }
                                 if (b[j] == 0x00 || b[j] == 0x01 || b[j] == 0x11) {
                                     position = j + 1;
                                     setDataToList(position,b,one_data,printLists);
@@ -296,9 +236,6 @@ public class EpsonParseDemo {
                                     one_data = null;
                                     break;
                                 }
-
-
-
                                 if (b[j] == 0x0A || b[j] == 0x20 || b[j] == 0x2D) {
                                     position = j;
                                     setDataToList(position,b,one_data,printLists);
@@ -441,7 +378,6 @@ public class EpsonParseDemo {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-//        ExceptionApplication.gLogger.error("stringDatas-->>>" + one_data.stringDatas);
         if (!one_data.datas.equals("") && isRightData(datas)) {
             printLists.add(one_data);
         }
@@ -798,7 +734,7 @@ public class EpsonParseDemo {
             fos.close();
 
         } catch (Exception e) {
-            // TODO: handle exception
+
         }
     }
 

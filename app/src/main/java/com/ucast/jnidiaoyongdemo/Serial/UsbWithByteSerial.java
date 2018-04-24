@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
+import com.ucast.jnidiaoyongdemo.Model.ByteArrCache;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.bmpTools.HandleEpsonDataByUcastPrint;
@@ -37,23 +38,23 @@ public class UsbWithByteSerial {
     private int waitNextMsgTime = 2;
     private int waitNextPicTime = 6;
     private Handler handler;
-//    private ArrayQueue<byte[]> receive_data_queues = new ArrayQueue<byte[]>(0x400);
+    private ByteArrCache cache;
+    //设置存放消息数组的设定长度
+    private int fanhuiBufferLen = 1024 * 100;
 
 
-    //用于存放打印返回信息
-    private byte[] fanhuiBuffer ;
-    //用于监控fanBuffer的初始偏移量
-    private int offSet = 0;
-    //用于反应当前应截取的位置
-    private int cutPosition = 0;
-
-
+    public UsbWithByteSerial(String path) {
+        this.Path = path;
+        sBuildBuffer = new StringBuilder();
+        Buffer = new byte[1024 * 10];
+        cache = new ByteArrCache(fanhuiBufferLen);
+    }
     public UsbWithByteSerial(String path, Handler handler) {
         this.Path = path;
         this.handler = handler;
         sBuildBuffer = new StringBuilder();
         Buffer = new byte[1024 * 10];
-        fanhuiBuffer = new byte[1024 * 100];
+        cache = new ByteArrCache(fanhuiBufferLen);
     }
 
     public Handler getHandler() {
@@ -140,14 +141,14 @@ public class UsbWithByteSerial {
 //                System.arraycopy(tem,0,allBufferDatas,0,tem.length);
 //                System.arraycopy(buffer,0,allBufferDatas,tem.length,buffer.length);
 //            }
-//            ExceptionApplication.gLogger.info(" get data time -->" + System.currentTimeMillis());
+//            ExceptionApplication.gLogger.info(" 收到USB来的数据了-->" + System.currentTimeMillis());
             //获取切纸前的所有数据
-            jointBuffer(buffer);
-            while (offSet > 0) {
+            cache.jointBuffer(buffer);
+            while (cache.getOffSet() > 0) {
                 int startIndex = 0 ;
-                int endIndex = getCutpapperPosition(cut_paper_byte_1);
+                int endIndex = cache.getCutpapperPosition(cut_paper_byte_1);
                 if (endIndex <= -1){
-                    endIndex = getCutpapperPosition(cut_paper_byte_2);
+                    endIndex = cache.getCutpapperPosition(cut_paper_byte_2);
                     if (endIndex <= -1){
                         break;
                     }
@@ -155,67 +156,14 @@ public class UsbWithByteSerial {
                 if (endIndex < startIndex)
                     break;
                 int len = endIndex + 2;
-                byte[] ong_Print_msg = getPrintbyte(startIndex,len);
+                byte[] ong_Print_msg = cache.getOneDataFromBuffer(startIndex,len);
                 HandleEpsonDataByUcastPrint.serialString(ong_Print_msg);
-                cutBuffer();
+                cache.cutBuffer();
             }
         }catch (Exception e){
 
         }
     }
-
-
-    private int getCutpapperPosition(byte[] b){
-        if (b.length < 2){
-            return -1;
-        }
-        for (int i = 0; i < offSet; i++) {
-            if (fanhuiBuffer[i] == b[1] && i > 0) {
-                if(fanhuiBuffer[i-1] == b[0]){
-                    return i - 1;
-                }
-            }
-        }
-        return -1;
-    }
-
-    private int getIndexByByte( byte b) {
-        for (int i = 0; i < offSet; i++) {
-            if (fanhuiBuffer[i] == b) {
-                return i;
-            }
-        }
-        return -1;
-    }
-    private void jointBuffer(byte[] buffer) {
-        if (offSet + buffer.length  > fanhuiBuffer.length) {
-            // 扩容 为原来的两倍
-            byte[] temp = new byte[fanhuiBuffer.length];
-            System.arraycopy(fanhuiBuffer,0,temp,0,fanhuiBuffer.length);
-            fanhuiBuffer = new byte[fanhuiBuffer.length * 2];
-            System.arraycopy(temp,0,fanhuiBuffer,0,temp.length);
-        }
-        System.arraycopy(buffer,0,fanhuiBuffer,offSet,buffer.length);
-        offSet = offSet + buffer.length;
-    }
-
-
-
-    //返回一个byte对象 用于发送消息 该数组不会包含 头和尾 即0x02和0x03
-    private byte[] getPrintbyte(int start, int len) {
-        byte[] printByte = new byte[len];
-        int position = start;
-        System.arraycopy(fanhuiBuffer,position,printByte,0,printByte.length);
-        cutPosition = len;
-        return printByte;
-    }
-
-    //用于重新截取fanhuiBuffer的数据
-    private void cutBuffer() {
-        System.arraycopy(fanhuiBuffer,cutPosition,fanhuiBuffer,0,offSet - cutPosition);
-        offSet = offSet - cutPosition;
-    }
-
 
     private void Send(byte[] buffer) {
         try {
@@ -284,7 +232,7 @@ public class UsbWithByteSerial {
                 mDispose = true;
                 ExceptionApplication.gLogger.error("Usb serial error close!");
                 MyDispose();
-                UsbSerialRestart.Check();
+                UsbWithByteSerialRestart.Check();
             }
         }
     }

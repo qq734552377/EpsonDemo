@@ -697,8 +697,7 @@ public class EpsonPicture {
             fos.write(bmpData);
             fos.flush();
         } catch (Exception e) {
-            // TODO: handle exception
-            System.out.println("-->>>>  " + e.toString());
+
         }finally {
             fos.close();
             fosToTxt.close();

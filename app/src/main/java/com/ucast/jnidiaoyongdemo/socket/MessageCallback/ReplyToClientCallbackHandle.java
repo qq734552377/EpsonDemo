@@ -4,21 +4,16 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Common;
-import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
-import com.ucast.jnidiaoyongdemo.Model.ReadPicture;
+import com.ucast.jnidiaoyongdemo.queue_ucast.ReadPicture;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
-import com.ucast.jnidiaoyongdemo.socket.Memory.NettyChannelMap;
 import com.ucast.jnidiaoyongdemo.socket.Message.Heartbeat;
 import com.ucast.jnidiaoyongdemo.socket.Message.MessageBase;
 import com.ucast.jnidiaoyongdemo.socket.Message.PrintMessage;
-import com.ucast.jnidiaoyongdemo.socket.Message.StationPrintMessage;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
 import java.io.File;

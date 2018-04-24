@@ -98,9 +98,6 @@ public class WhileCheckClient {
                     Log.e("calm", "Old Connection close " + ip + " Ssid:" + ssid);
                     return;
                 }
-
-                //TODO 9.14改
-//                Common.SendUpdate();
                 ExceptionApplication.gLogger.info("Same Connect Ip:" + ip + " Ssid:" + ssid);
                 return;
             }

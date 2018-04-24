@@ -1,11 +1,8 @@
 package com.ucast.jnidiaoyongdemo.Serial;
 
 
-import android.os.Handler;
-
 import com.ucast.jnidiaoyongdemo.Model.Config;
-import com.ucast.jnidiaoyongdemo.Model.MermoyUsbSerial;
-import com.ucast.jnidiaoyongdemo.Model.MermoyUsbWithByteSerial;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyUsbWithByteSerial;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
@@ -28,8 +25,7 @@ public class UsbWithByteSerialRestart {
                             return;
                         ExceptionApplication.gLogger.error("Usb serial error close!  We willl resart it.....");
                         UsbWithByteSerial oldUsbSerial = MermoyUsbWithByteSerial.GetChannel(Config.UsbWithByteSerialName);
-                        Handler handler = oldUsbSerial.getHandler();
-                        UsbWithByteSerial padSerialPort = new UsbWithByteSerial(Config.UsbSerial,handler);
+                        UsbWithByteSerial padSerialPort = new UsbWithByteSerial(Config.UsbSerial);
                         boolean isOpen = padSerialPort.Open();
                         MermoyUsbWithByteSerial.Remove(Config.UsbWithByteSerialName);
                         MermoyUsbWithByteSerial.Add(padSerialPort);

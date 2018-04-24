@@ -1,4 +1,6 @@
-package com.ucast.jnidiaoyongdemo.Model;
+package com.ucast.jnidiaoyongdemo.protocol_ucast;
+
+import com.ucast.jnidiaoyongdemo.Model.Common;
 
 /**
  * Created by pj on 2018/3/16.

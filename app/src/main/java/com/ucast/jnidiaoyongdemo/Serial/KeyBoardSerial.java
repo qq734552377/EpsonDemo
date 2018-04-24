@@ -1,18 +1,10 @@
 package com.ucast.jnidiaoyongdemo.Serial;
 
-import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
-import com.ucast.jnidiaoyongdemo.Model.ListPictureQueue;
-import com.ucast.jnidiaoyongdemo.Model.MsCardProtocol;
-import com.ucast.jnidiaoyongdemo.Model.PrinterProtocol;
-import com.ucast.jnidiaoyongdemo.Model.SendPackage;
-import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
-import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 
 

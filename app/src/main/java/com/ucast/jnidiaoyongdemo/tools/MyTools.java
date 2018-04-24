@@ -1,7 +1,5 @@
 package com.ucast.jnidiaoyongdemo.tools;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.backup.BackupManager;
 import android.content.ContentValues;
 import android.content.Context;
@@ -21,11 +19,10 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
-import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
-import com.ucast.jnidiaoyongdemo.Model.UploadDataQueue;
+import com.ucast.jnidiaoyongdemo.queue_ucast.UploadDataQueue;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 
@@ -45,7 +42,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -318,15 +314,13 @@ public class MyTools {
                 double moneyD = Double.parseDouble(base.getInfo());
                 int money = (int) moneyD;
                 if (money >= 100) {
-//            Dialog d = MyDialog.showDialogWithMsg("您本次消费已满100元，是否打印停车小票？", money);
-//            d.show();
-                String printMsg = "您本次已消费" + money + "元，免费获得" + (money / 100) + ".0小时停车券。\n欢迎下次光临！\n" +
-                        "\n";
-                Bitmap b = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
-                String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
-                ;
-                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(b, false));
-                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
+                    String printMsg = "您本次已消费" + money + "元，免费获得" + (money / 100) + ".0小时停车券。\n欢迎下次光临！\n" +
+                            "\n";
+                    Bitmap b = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
+                    String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
+                    ;
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(b, false));
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
                 }
             }catch (Exception e){
 
@@ -477,7 +471,6 @@ public class MyTools {
             is.close();
             os.close();
         } catch (Exception e) {
-            // TODO: handle exception
             Log.e(ContentValues.TAG, "copyCfg: 写入失败");
         }
     }
@@ -507,9 +500,6 @@ public class MyTools {
                 bRet = true;
             }
         } catch (IOException e) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage(e.getMessage());
-            builder.show();
             e.printStackTrace();
         }
         return bRet;
@@ -528,9 +518,9 @@ public class MyTools {
             Class configClass = config.getClass();
             Field f = configClass.getField("userSetLocale");
             f.setBoolean(config, true);
-//            if(config.locale==Locale.CHINA){
-//            	return false;
-//            }
+            if(config.locale==Locale.CHINA){
+            	return false;
+            }
             config.locale = Locale.CHINA;
             Method methodUpdateConfiguration = amnClass.getMethod("updateConfiguration", Configuration.class);
             methodUpdateConfiguration.invoke(amn, config);

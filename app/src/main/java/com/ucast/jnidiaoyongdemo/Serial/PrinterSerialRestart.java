@@ -2,7 +2,7 @@ package com.ucast.jnidiaoyongdemo.Serial;
 
 
 import com.ucast.jnidiaoyongdemo.Model.Config;
-import com.ucast.jnidiaoyongdemo.Model.MermoyPrinterSerial;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyPrinterSerial;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;

@@ -1,5 +1,6 @@
-package com.ucast.jnidiaoyongdemo.Model;
+package com.ucast.jnidiaoyongdemo.globalMapObj;
 
+import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Serial.KeyBoardSerial;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 

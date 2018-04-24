@@ -1,9 +1,12 @@
-package com.ucast.jnidiaoyongdemo.Model;
+package com.ucast.jnidiaoyongdemo.queue_ucast;
 
 import android.os.SystemClock;
 
+import com.ucast.jnidiaoyongdemo.Model.PictureModel;
+import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
 
@@ -27,7 +30,7 @@ public class ListPictureQueue {
                         return;
                     PictureModel info = list.get(0);
                     long time = (long) (SystemClock.elapsedRealtime() - info.getOutTime()) / 1000;
-                    if (time < 10)
+                    if (time < 18)
                         return;
                     SendAgain(true);
                 }
@@ -101,31 +104,9 @@ public class ListPictureQueue {
             byte[] str = info.BufferPicture.get(0);
             info.setOutTime(SystemClock.elapsedRealtime());
             SendPackage.sendToPrinter(str);
-//        ExceptionApplication.gLogger.info(" send First Picture first time： -->" + System.currentTimeMillis());
+//            ExceptionApplication.gLogger.info(" send First Picture first time： -->" + System.currentTimeMillis());
 //            ExceptionApplication.gLogger.info(" send First Picture first time： " +  MyTools.millisToDateString(System.currentTimeMillis()));
 //            ExceptionApplication.gLogger.info(EpsonParseDemo.printHexString(str));
-//            for (int i = 0; i < info.BufferPicture.size(); i++) {
-//                byte[] str = info.BufferPicture.get(i);
-//                info.setCurtNum(i + 1);
-//                info.setOutTime(SystemClock.elapsedRealtime());
-//                SendPackage.sendToPrinter(str);
-//                ExceptionApplication.gLogger.info((i+ 1) + " --> cur pakage  " +  System.currentTimeMillis());
-//                try{
-//                    Thread.sleep(52);
-//                }catch (Exception e){
-//
-//                }
-//                if (i == info.BufferPicture.size() - 1 ){
-//                    SendPackage.sendToPrinter(PrinterProtocol.getPrinterCutPaperProtocol());
-//                    try{
-//                        Thread.sleep(1997);
-//                    }catch (Exception e){
-//
-//                    }
-//                    Remove();
-//                }
-//            }
-
     }
 
     private static void SendAgain(boolean isSendAgain) {
@@ -144,7 +125,7 @@ public class ListPictureQueue {
         info.setOutTime(SystemClock.elapsedRealtime());
         SendPackage.sendToPrinter(str);
         if(isSendAgain) {
-//            ExceptionApplication.gLogger.info(" send same Picture first package");
+            ExceptionApplication.gLogger.info(" send same Picture first package");
         }else {
 //            ExceptionApplication.gLogger.info(" send next Picture first package");
         }
@@ -185,16 +166,6 @@ public class ListPictureQueue {
                     list.remove(0);
                     SendAgain(false);
                 }
-//                Channel channel = info.getChannel();
-//                if(channel!= null && channel.isActive()){
-//                    //告诉客户端打印完成
-//                    byte[] appdata = Common.GetFormat("1201", 1, 1, new String[]{true ? "0" : "1"});
-//                    SendPackage.ChannelSendBuffer(channel,appdata);
-//                }
-
-                //改为在收到切纸回复后  发送下一张图片
-//                Remove();
-//                SendNext();
                 return;
             }
 
