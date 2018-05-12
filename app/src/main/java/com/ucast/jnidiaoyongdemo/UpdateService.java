@@ -1,8 +1,15 @@
 package com.ucast.jnidiaoyongdemo;
 
+import android.app.Dialog;
 import android.app.Notification;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.hardware.usb.UsbAccessory;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -14,6 +21,9 @@ import android.util.Log;
 import com.alibaba.fastjson.JSON;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
+import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
+import com.ucast.jnidiaoyongdemo.Model.MyUsbManager;
+import com.ucast.jnidiaoyongdemo.jsonObject.HeartBeatResult;
 import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
 import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyKeyboardSerial;
 import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyPrinterSerial;
@@ -28,8 +38,15 @@ import com.ucast.jnidiaoyongdemo.Serial.UsbWithByteSerial;
 import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
+import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.tools.MyDialog;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
@@ -44,6 +61,13 @@ import java.util.Date;
  * Created by pj on 2016/11/21.
  */
 public class UpdateService extends Service {
+
+    private boolean connected;
+
+    private static final long MONEYBOXTISHITIME = 1000L * 12;
+    private static long oldMoneyBoxTime ;
+    private static Dialog moneyBoxDialog;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -65,7 +89,9 @@ public class UpdateService extends Service {
         startForeground(1, notification);
         super.onCreate();
         startTimer();
+        startMoneyBoxTimer();
         copyCfg("ums.bmp");
+        copyCfg("ucast.bmp");
         OpenPrint print = new OpenPrint(Config.PrinterSerial);
         boolean isOpen = print.Open();
         MermoyPrinterSerial.Add(print);
@@ -92,7 +118,26 @@ public class UpdateService extends Service {
 //        NioTcpServer tcpServer = new NioTcpServer(7700);
 //        new Thread(tcpServer).start();
 
+        registUsbBroadcast();
+        moneyBoxDialog = MyDialog.showIsOpenMoneyBoxDialog();
+        EventBus.getDefault().register(this);
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showIsOpenMoneyBox(MoneyBoxEvent event){
+        if (!event.isShow()){
+            if (moneyBoxDialog.isShowing())
+                moneyBoxDialog.dismiss();
+            return;
+        }
+        if (moneyBoxDialog != null){
+            oldMoneyBoxTime = System.currentTimeMillis();
+            if (moneyBoxDialog.isShowing())
+                return;
+            moneyBoxDialog.show();
+        }
+    }
+
 
     /**
      * 当服务被杀死时重启服务
@@ -101,10 +146,53 @@ public class UpdateService extends Service {
         stopForeground(true);
         Intent localIntent = new Intent();
         localIntent.setClass(this, UpdateService.class);
+        EventBus.getDefault().unregister(this);
+        if(receiver != null){
+            unregisterReceiver(receiver);
+        }
         this.startService(localIntent);    //销毁时重新启动Service
     }
 
+
+    private BroadcastReceiver receiver;
+    private IntentFilter intentFilter;
+    public void registUsbBroadcast() {
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String action = intent.getAction();
+//                ExceptionApplication.gLogger.info("来的广播为："+ action);
+
+                switch (action) {
+                    case UsbManager.ACTION_USB_ACCESSORY_ATTACHED:
+                    case UsbManager.ACTION_USB_ACCESSORY_DETACHED:
+                        UsbAccessory accessory = intent.getParcelableExtra(UsbManager.EXTRA_ACCESSORY);
+                        break;
+                    case UsbManager.ACTION_USB_DEVICE_ATTACHED:
+                    case UsbManager.ACTION_USB_DEVICE_DETACHED:
+                        UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                        break;
+                    case MyUsbManager.ACTION_USB_STATE:
+                        connected = intent.getBooleanExtra(MyUsbManager.USB_CONNECTED, false);
+                        if( !connected){
+                            String url= YinlianHttpRequestUrl.TIMEUPDATEURL;
+                            getSystemTime(url.trim());
+                        }
+                        break;
+                }
+            }
+        };
+        intentFilter = new IntentFilter();
+        intentFilter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
+        intentFilter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+        intentFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        intentFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        intentFilter.addAction(MyUsbManager.ACTION_USB_STATE);
+        registerReceiver(receiver, intentFilter);
+    }
+
     public MyTimer timer;
+    public MyTimer moneyBoxtimer;
     public void startTimer() {
         timer = new MyTimer(new MyTimeTask(new Runnable() {
             @Override
@@ -115,17 +203,38 @@ public class UpdateService extends Service {
         }), 1000*2L, 1*1000*60L);
         timer.initMyTimer().startMyTimer();
     }
+    public void startMoneyBoxTimer() {
+        moneyBoxtimer = new MyTimer(new MyTimeTask(new Runnable() {
+            @Override
+            public void run() {
+                if(System.currentTimeMillis() - oldMoneyBoxTime < MONEYBOXTISHITIME){
+                    return;
+                }
+                oldMoneyBoxTime = System.currentTimeMillis();
+                EventBus.getDefault().postSticky(new MoneyBoxEvent(false));
+            }
+        }), 1000*2L, 1*1000*2L);
+        moneyBoxtimer.initMyTimer().startMyTimer();
+    }
 
     private static final String TAG = "UpdateService";
     public void getSystemTime(String url){
         RequestParams params = new RequestParams(url);
-        params.addBodyParameter("Sn",Config.STATION_ID);
+        params.addBodyParameter("DeviceID",Config.DEVICE_ID);
+        params.addBodyParameter("IsConnect",connected ? "true" : "false");
         x.http().post(params, new Callback.CommonCallback<String>() {
             @Override
             public void onSuccess(String result) {
-//                String time=result.replace("\"","").trim();
                 BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
-//                setTime(base.getInfo().replace("\"","").trim());
+                if(base.getMsgType().equals("Success") && base.getData() != null && !base.getData().equals("")){
+                    HeartBeatResult heartBeatResult = JSON.parseObject(base.getData(),HeartBeatResult.class);
+                    boolean isCloseModle = heartBeatResult.IsOpenPrintModel.equals(SavePasswd.CLOSEPRINT);
+                    if(isCloseModle){
+                        SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
+                    }else {
+                        SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
+                    }
+                }
             }
 
             @Override
@@ -144,23 +253,6 @@ public class UpdateService extends Service {
             }
         });
     }
-
-    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-
-            switch (msg.what){
-                case 10:
-                    String path = (String) msg.obj;
-//                    ExceptionApplication.gLogger.info("get pic from UsbSerial -->" + System.currentTimeMillis() + "   \npath:" + path);
-                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(path));
-                    break;
-            }
-        }
-        };
-
-
-
 
     public void setTime(String mytime){
         Date mydate=StringToDate(mytime);

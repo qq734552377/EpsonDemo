@@ -2,6 +2,7 @@ package com.ucast.jnidiaoyongdemo.queue_ucast;
 
 import android.os.SystemClock;
 
+import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
 import com.ucast.jnidiaoyongdemo.Model.PictureModel;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
@@ -9,6 +10,8 @@ import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +29,19 @@ public class ListPictureQueue {
         timer = new MyTimer(new MyTimeTask(new Runnable() {
             public void run() {
                 synchronized (ListPictureQueue.class) {
+
                     if (list.size() <= 0)
                         return;
                     PictureModel info = list.get(0);
                     long time = (long) (SystemClock.elapsedRealtime() - info.getOutTime()) / 1000;
-                    if (time < 18)
+                    if (time < 3)
                         return;
                     SendAgain(true);
+
                 }
             }
 
-        }), 2000L, 3000L);
+        }), 2000L, 2000L);
         timer.initMyTimer().startMyTimer();
     }
 
@@ -58,7 +63,7 @@ public class ListPictureQueue {
                 list.remove(0);
                 SendAgain(false);
             }else{
-                SendAgain(true);
+                SendAgain(false);
             }
         }
     }
@@ -104,6 +109,7 @@ public class ListPictureQueue {
             byte[] str = info.BufferPicture.get(0);
             info.setOutTime(SystemClock.elapsedRealtime());
             SendPackage.sendToPrinter(str);
+            EventBus.getDefault().post(new MoneyBoxEvent(true));
 //            ExceptionApplication.gLogger.info(" send First Picture first time： -->" + System.currentTimeMillis());
 //            ExceptionApplication.gLogger.info(" send First Picture first time： " +  MyTools.millisToDateString(System.currentTimeMillis()));
 //            ExceptionApplication.gLogger.info(EpsonParseDemo.printHexString(str));
@@ -121,11 +127,14 @@ public class ListPictureQueue {
             ExceptionApplication.gLogger.info("info cutPapper is true --- > " );
             return;
         }
-        byte[] str = info.BufferPicture.get(0);
+        int curIndex = 0;
+        if (isSendAgain)
+            curIndex = info.getCurtNum();
+        byte[] str = info.BufferPicture.get(curIndex);
         info.setOutTime(SystemClock.elapsedRealtime());
         SendPackage.sendToPrinter(str);
         if(isSendAgain) {
-            ExceptionApplication.gLogger.info(" send same Picture first package");
+            ExceptionApplication.gLogger.info(" send same Picture: " + curIndex + " package");
         }else {
 //            ExceptionApplication.gLogger.info(" send next Picture first package");
         }
@@ -154,6 +163,11 @@ public class ListPictureQueue {
                 //设置打印的当前包序号
                 info.setCurtNum(index);
                 info.setOutTime(SystemClock.elapsedRealtime());
+                try{
+//                    Thread.sleep(1);
+                }catch (Exception e){
+
+                }
                 SendPackage.sendToPrinter(buffer);
             }
             if (baoSize == index) {

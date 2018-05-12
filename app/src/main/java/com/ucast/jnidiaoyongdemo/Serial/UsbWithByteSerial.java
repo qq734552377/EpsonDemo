@@ -46,7 +46,7 @@ public class UsbWithByteSerial {
     public UsbWithByteSerial(String path) {
         this.Path = path;
         sBuildBuffer = new StringBuilder();
-        Buffer = new byte[1024 * 10];
+        Buffer = new byte[1024 * 50];
         cache = new ByteArrCache(fanhuiBufferLen);
     }
     public UsbWithByteSerial(String path, Handler handler) {

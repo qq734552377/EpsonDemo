@@ -76,7 +76,7 @@ public class OpenPrint {
             ExceptionApplication.gLogger.info("Printer serial "+Path+" open normally !");
             return true;
         } catch (IOException e) {
-            ExceptionApplication.gLogger.info("Printer serial open failed !");
+            ExceptionApplication.gLogger.info("Printer serial "+ Path +" open failed !");
             return false;
         }
     }
@@ -174,6 +174,8 @@ public class OpenPrint {
     private void AnalyticalProtocol(byte[] buffer) {
         //添加串口数据
         jointBuffer(buffer);
+        EpsonParseDemo.printHexString(buffer);
+//        ExceptionApplication.gLogger.info("所有的数据-->"+EpsonParseDemo.printHexString(buffer));
         while (offSet > 0) {
             int startIndex = getIndexByByte((byte) 0x02);
             if (startIndex <= -1) {
@@ -340,12 +342,15 @@ public class OpenPrint {
         switch (num){
             case 0 :
                 msSB.delete(0,msSB.length());
+                msSB.append("T1");
                 msSB.append(new String(dataMs));
                 break;
             case 1 :
+                msSB.append("T2");
                 msSB.append(new String(dataMs));
                 break;
             case 2:
+                msSB.append("T3");
                 msSB.append(new String(dataMs));
                 EventBus.getDefault().postSticky(msSB.toString());
                 ExceptionApplication.gLogger.info("Mscard data ----->" + msSB.toString());

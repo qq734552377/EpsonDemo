@@ -18,10 +18,19 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
+import com.ucast.jnidiaoyongdemo.bmpTools.SomeBitMapHandleWay;
+import com.ucast.jnidiaoyongdemo.jsonObject.TicketMsgResult;
+import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
 import com.ucast.jnidiaoyongdemo.queue_ucast.UploadDataQueue;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
@@ -34,6 +43,7 @@ import org.xutils.x;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,13 +54,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
  * Created by pj on 2016/11/23.
  */
 public class MyTools {
+    public static final String MONEYBOXFILEPATH = "/sys/devices/platform/avrctl/moneybox";
+    public static final String CEMIANCAMERAFILEPATH = "/sys/bus/i2c/drivers/ov564x/vcm";
+    public static final String ZHENGMIANCAMERAFILEPATH = "/sys/bus/i2c/drivers/ov564x_mipi/vcm";
 
     public MyTools() {
     }
@@ -113,18 +128,41 @@ public class MyTools {
 
     public static String getMacAddress(){
         try {
-            return loadFileAsString("/sys/class/net/eth0/address") .toUpperCase().substring(0, 17);
+            return loadFileAsString("/sys/class/net/eth0/address") .toUpperCase().substring(0, 17).replace(':','-');
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static void downloadFile(final String url, String path) {
+    public static Bitmap generateBitmap(String content,int width, int height) {
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        Map<EncodeHintType, String> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+        try {
+            BitMatrix encode = qrCodeWriter.encode(content, BarcodeFormat.QR_CODE, width, height, hints);
+            int[] pixels = new int[width * height];
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    if (encode.get(j, i)) {
+                        pixels[i * width + j] = 0x00000000;
+                    } else {
+                        pixels[i * width + j] = 0xffffffff;
+                    }
+                }
+            }
+            return Bitmap.createBitmap(pixels, 0, width, width, height, Bitmap.Config.RGB_565);
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public static void downloadFileUsetoPrint(final String url, String path) {
         if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
             return;
         }
-
         RequestParams requestParams = new RequestParams(url);
         requestParams.setSaveFilePath(path);
         x.http().get(requestParams, new Callback.ProgressCallback<File>() {
@@ -142,7 +180,10 @@ public class MyTools {
             }
             @Override
             public void onSuccess(File result) {
-
+                String path = isExitInSdcard(url);
+                if (path != null){
+                    ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
+                }
             }
             @Override
             public void onError(Throwable ex, boolean isOnCallback) {
@@ -157,6 +198,18 @@ public class MyTools {
             }
         });
     }
+
+    public static String isExitInSdcard(String url){
+        String path = Config.PICPATHDIR + url.substring(url.lastIndexOf("/") + 1) ;
+        File file = new File(path);
+        if (!file.exists()){
+            downloadFileUsetoPrint(url,path);
+            return null;
+        }else{
+            return path;
+        }
+    }
+
 
     public static boolean isNetworkAvailable(Context context) {
         // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
@@ -217,7 +270,7 @@ public class MyTools {
         params.setMultipart(true);
         params.addBodyParameter("work_order_image",new File(path));
         params.addBodyParameter("Time",millisToDateString(System.currentTimeMillis()));
-        params.addBodyParameter("Imei", Config.STATION_ID);
+        params.addBodyParameter("Imei", Config.DEVICE_ID);
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {
@@ -248,7 +301,7 @@ public class MyTools {
 //        params.setMultipart(true);
         params.addBodyParameter("Content",data);
         params.addBodyParameter("Time",millisToDateString(System.currentTimeMillis()));
-        params.addBodyParameter("Imei", Config.STATION_ID);
+        params.addBodyParameter("Imei", Config.DEVICE_ID);
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {
@@ -281,7 +334,7 @@ public class MyTools {
         params.addBodyParameter("work_order_image",new File(path));
         params.addBodyParameter("Content",data);
         params.addBodyParameter("Time",millisToDateString(System.currentTimeMillis()));
-        params.addBodyParameter("Imei", Config.STATION_ID);
+        params.addBodyParameter("Imei", Config.DEVICE_ID);
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {
@@ -309,18 +362,41 @@ public class MyTools {
     public static void handleTicket(String result){
         EventBus.getDefault().postSticky(result);
         BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
-        if (base.getMsgType().equals("Success") && !base.getInfo().equals("")){
+        if (base.getMsgType().equals("Success") && base.getData() != null && !base.getData().equals("")){
+            TicketMsgResult ticketMsgResult = JSON.parseObject(base.getData(),TicketMsgResult.class);
+            double moneyD = Double.parseDouble(ticketMsgResult.getAmount());
+            String printMsg = ticketMsgResult.getStr();
+            String linkMsg = ticketMsgResult.getLink();
+            String bmpUrlMsg = ticketMsgResult.getImg();
             try {
-                double moneyD = Double.parseDouble(base.getInfo());
                 int money = (int) moneyD;
                 if (money >= 100) {
-                    String printMsg = "您本次已消费" + money + "元，免费获得" + (money / 100) + ".0小时停车券。\n欢迎下次光临！\n" +
+                    String printLocalMsg = "您本次已消费" + money + "元，免费获得" + (money / 100) + ".0小时停车券。\n欢迎下次光临！\n" +
                             "\n";
-                    Bitmap b = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
+                    Bitmap b = EpsonPicture.getBitMapByStringReturnBigBitmap(printLocalMsg);
                     String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
                     ;
                     ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(b, false));
                     ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
+                    return;
+                }
+                Bitmap strBmp = null;
+                Bitmap linkBmp = null;
+                if (printMsg != null && !printMsg.equals("")){
+                    strBmp = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
+                }
+                if (linkMsg != null && !linkMsg.equals("")){
+                    linkBmp = MyTools.generateBitmap(linkMsg, SomeBitMapHandleWay.PRINT_WIDTH,SomeBitMapHandleWay.PRINT_WIDTH);
+                    if (strBmp != null)
+                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(strBmp, false));
+                    if (linkBmp != null)
+                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(linkBmp, true));
+                }
+                if (bmpUrlMsg != null && !bmpUrlMsg.equals("")){
+                    String path = isExitInSdcard(bmpUrlMsg);
+                    if (path != null){
+                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
+                    }
                 }
             }catch (Exception e){
 
@@ -328,6 +404,24 @@ public class MyTools {
         }
     }
 
+    public static void openMoneyBox(){
+        String filePath = MONEYBOXFILEPATH;
+        sendOrderToDeviceFile(filePath,"on");
+    }
+
+    public static void sendOrderToDeviceFile(String filePath,String order){
+        File f = new File(filePath);
+        if (!f.exists())
+            return;
+        try {
+            FileOutputStream out = new FileOutputStream(f);
+            out.write(order.getBytes());
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /*** 获取文件大小 ***/
     public static long getFileSizes(String apkPath) throws Exception {

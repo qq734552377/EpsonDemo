@@ -20,7 +20,7 @@ public class SavePasswd {
 
     private static SavePasswd savePasswd;
     private final String fileName = "myfile";
-    private final String xmlPath = CrashHandler.ALBUM_PATH+
+    private final String xmlPath = CrashHandler.ALBUM_PATH +
                     "/UcastSetting.xml";
 
     public final static String XMLSTARTTAG = "setting";

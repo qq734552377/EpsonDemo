@@ -22,13 +22,6 @@ import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
  * Created by pj on 2016/11/24.
  */
 public class MyDialog {
-    private Context context;
-    public MyDialog() {
-    }
-
-    public MyDialog(Context context) {
-        this.context = context;
-    }
 
     public static Dialog showDialogWithMsg(String msg, final int money){
         AlertDialog.Builder builder=new AlertDialog.Builder(ExceptionApplication.getInstance());
@@ -43,6 +36,22 @@ public class MyDialog {
                 String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
                 ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(b,false));
                 ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path),true));
+                dialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("取消", null);
+        Dialog alertDialog = builder.create();
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
+        return alertDialog;
+    }
+    public static Dialog showIsOpenMoneyBoxDialog(){
+        AlertDialog.Builder builder=new AlertDialog.Builder(ExceptionApplication.getInstance());
+        builder.setTitle("提示");
+        builder.setMessage("是否打开钱箱？");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                MyTools.openMoneyBox();
                 dialog.dismiss();
             }
         });

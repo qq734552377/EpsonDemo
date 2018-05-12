@@ -80,27 +80,28 @@ final class CameraConfigurationManager {
 //      cameraResolution = getCameraResolution(parameters, screenResolution);
 //    }
 
-    if(CaptureActivity.CAMERAID == 0){
-      //侧面的摄像头
-      cameraResolution = new Point(640,480);
-    }else{
-      //前面的摄像头
-    if(CaptureActivity.ISPORTRAIT){
-        //为竖屏添加
-        Point screenResolutionForCamera = new Point();
-        screenResolutionForCamera.x = screenResolution.x;
-        screenResolutionForCamera.y = screenResolution.y;
-        if (screenResolution.x < screenResolution.y) {
-          screenResolutionForCamera.x = screenResolution.y;
-          screenResolutionForCamera.y = screenResolution.x;
-        }
-        // 下句第二参数要根据竖屏修改
-        cameraResolution = getCameraResolution(parameters, screenResolutionForCamera);
-      }else{
-        //横屏下参数
-        cameraResolution = getCameraResolution(parameters, screenResolution);
-      }
-    }
+//    if(CaptureActivity.CAMERAID == 0){
+//      //侧面的摄像头
+//      cameraResolution = new Point(640,480);
+//    }else{
+//      //前面的摄像头
+//    if(CaptureActivity.ISPORTRAIT){
+//        //为竖屏添加
+//        Point screenResolutionForCamera = new Point();
+//        screenResolutionForCamera.x = screenResolution.x;
+//        screenResolutionForCamera.y = screenResolution.y;
+//        if (screenResolution.x < screenResolution.y) {
+//          screenResolutionForCamera.x = screenResolution.y;
+//          screenResolutionForCamera.y = screenResolution.x;
+//        }
+//        // 下句第二参数要根据竖屏修改
+//        cameraResolution = getCameraResolution(parameters, screenResolutionForCamera);
+//      }else{
+//        //横屏下参数
+//        cameraResolution = getCameraResolution(parameters, screenResolution);
+//      }
+//    }
+    cameraResolution = new Point(320,240);
 
     Log.d(TAG, "Camera resolution: " + cameraResolution);
   }

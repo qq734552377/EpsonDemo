@@ -12,12 +12,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
+import com.ucast.jnidiaoyongdemo.Model.Config;
+import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
 import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 import com.ucast.jnidiaoyongdemo.Serial.SerialPort;
+import com.ucast.jnidiaoyongdemo.Serial.SerialTest;
 import com.ucast.jnidiaoyongdemo.db.UploadDBHelper;
 import com.ucast.jnidiaoyongdemo.erweima.view.mysaomiao.CaptureActivity;
+import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyPrinterSerial;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.MsCardProtocol;
+import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
+import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.tools.MyDialog;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -53,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 //                String str  = "http://www.ucast.sg";
 //                KeyboardSwitch.sendToKeyboard(str);
 //                MyDialog.showDialogWithMsg("这是对话框",114).show();
-                String path = Environment.getExternalStorageDirectory().getPath() + "/ums.bmp";
+                String path = Environment.getExternalStorageDirectory().getPath() + "/ucast.bmp";
                 ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path),true));
             }
         });
@@ -70,13 +79,33 @@ public class MainActivity extends AppCompatActivity {
                 startAc(1);
             }
         });
+        findViewById(R.id.open_moneybox).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyTools.openMoneyBox();
+            }
+        });
         EventBus.getDefault().register(this);
+
+//        startTestSerial();
+
     }
+    public void startTestSerial(){
+        String path = "/dev/ttymxc2";
+        SerialTest print = new SerialTest(path);
+        boolean isOpen = print.Open();
+        if (isOpen){
+            print.Send(path + " test ,if you see it ,it's ok !");
+        }
+    }
+
+
     public void startAc(int type) {
         Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
         intent.putExtra(CaptureActivity.CAMERAKEY, type);
         startActivityForResult(intent, type);
     }
+
 
 
     public void getDataBaseShow() {
@@ -86,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
         List<UploadData> list = UploadDBHelper.getInstance().selectAll();
         if (list == null){
             tv.setText("数据库没数据");
+            tv.setText(Config.DEVICE_ID);
             return;
         }
 
@@ -98,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         tv.setText("所有的数据为:" + list.size()+" \n未上传的路径数据为："+pathNum+" \n 为上传的数据为："+datahNum);
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)

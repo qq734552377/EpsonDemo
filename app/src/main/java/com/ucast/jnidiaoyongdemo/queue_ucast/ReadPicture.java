@@ -81,7 +81,11 @@ public class ReadPicture {
                     //转换byte数组
                     pictureByte = getBmpByteFromBMPFile(pathName);
                     //解析获得了一张图片的完整信息PictureModel
-                    info = WholeBytes(pictureByte);
+                    if(pictureByte != null) {
+                        info = WholeBytes(pictureByte);
+                    }else{
+                        info = new PictureModel();
+                    }
                     info.setPath(pathName);
                 }else if(bitmap != null){
                     pictureByte = EpsonPicture.turnBytes(bitmap);

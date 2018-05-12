@@ -18,13 +18,12 @@ public class BitmapWithOtherMsg {
     public BitmapWithOtherMsg(String path) {
         this.path = path;
     }
-
     public BitmapWithOtherMsg(boolean isCutPapper) {
         this.isCutPapper = isCutPapper;
     }
     public BitmapWithOtherMsg(String path,boolean isCutPapper) {
-        this.isCutPapper = isCutPapper;
         this.path = path;
+        this.isCutPapper = isCutPapper;
     }
     public BitmapWithOtherMsg(Bitmap bitmap,boolean isCutPapper) {
         this.bitmap = bitmap;
