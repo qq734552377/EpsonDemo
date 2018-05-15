@@ -828,6 +828,9 @@ public class EpsonPicture {
             for (int j = 0; j < copyW; j = j + 8) {
                 byte value = 0;
                 for (int s = 0; s <= 7; s++) {
+                    if (j + s > w -1){
+                        continue;
+                    }
                     int a = b[i * w + j + s];
                     int aa = a & 0xff;
                     if (aa != 255) {
