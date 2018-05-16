@@ -409,6 +409,15 @@ public class MyTools {
         sendOrderToDeviceFile(filePath,"on");
     }
 
+    public static void setCameraFixed(){
+        String filePath = ZHENGMIANCAMERAFILEPATH;
+        sendOrderToDeviceFile(filePath,"700");
+    }
+    public static void setCameraAuto(){
+        String filePath = ZHENGMIANCAMERAFILEPATH;
+        sendOrderToDeviceFile(filePath,"0");
+    }
+
     public static void sendOrderToDeviceFile(String filePath,String order){
         File f = new File(filePath);
         if (!f.exists())

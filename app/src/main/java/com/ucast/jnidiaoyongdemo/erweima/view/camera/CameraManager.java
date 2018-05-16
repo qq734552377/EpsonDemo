@@ -238,8 +238,8 @@ public final class CameraManager {
         return null;
       }
       int minWidth = screenResolution.x < screenResolution.y ? screenResolution.x : screenResolution.y;
-      int width = minWidth * 3 / 4;
-      int height = minWidth * 3 / 4;
+      int width = minWidth * 4 / 4;
+      int height = minWidth * 4 / 4;
       if (width < MIN_FRAME_WIDTH) {
         width = MIN_FRAME_WIDTH;
       } else if (width > MAX_FRAME_WIDTH) {

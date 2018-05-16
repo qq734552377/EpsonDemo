@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         EventBus.getDefault().register(this);
-
+        MyTools.setCameraFixed();
 //        startTestSerial();
 
     }
@@ -138,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
+        MyTools.setCameraAuto();
         super.onDestroy();
     }
 
