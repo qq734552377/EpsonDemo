@@ -41,9 +41,9 @@ public class ReadPicture {
     public void Add(BitmapWithOtherMsg iObj) {
         synchronized (ReadPicture.class) {
             //获取设置中的是否开启打印
-            String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
+            String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
 //            ExceptionApplication.gLogger.info("是否开启打印 --->" + isOpenPrint + "<----");
-            boolean isOPen = isOpenPrint.equals(SavePasswd.OPENPRINT) ? true : false;
+            boolean isOPen = isOpenPrint.equals(SavePasswd.CLOSEPRINT) ? false : true;
             if (isOPen) {
                 _mQueues.enqueue(iObj);
             }

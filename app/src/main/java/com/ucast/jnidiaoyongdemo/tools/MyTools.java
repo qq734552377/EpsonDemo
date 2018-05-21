@@ -40,6 +40,7 @@ import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
 import org.xutils.x;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -416,6 +417,19 @@ public class MyTools {
     public static void setCameraAuto(){
         String filePath = ZHENGMIANCAMERAFILEPATH;
         sendOrderToDeviceFile(filePath,"0");
+    }
+
+    public static void writeToFile(String path , String data){
+        try{
+            File f = new File(path);
+            FileOutputStream fout = new FileOutputStream(f , true);
+            BufferedOutputStream buff = new BufferedOutputStream(fout);
+            buff.write((data + "\r\n").getBytes());
+            buff.flush();
+            buff.close();
+        }catch (Exception e){
+
+        }
     }
 
     public static void sendOrderToDeviceFile(String filePath,String order){

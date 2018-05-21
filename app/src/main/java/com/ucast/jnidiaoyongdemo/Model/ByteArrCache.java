@@ -1,5 +1,11 @@
 package com.ucast.jnidiaoyongdemo.Model;
 
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
+import com.ucast.jnidiaoyongdemo.bmpTools.HandleEpsonDataByUcastPrint;
+import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
+
 /**
  * Created by pj on 2018/4/24.
  */
@@ -23,6 +29,13 @@ public class ByteArrCache {
     }
 
     public void jointBuffer(byte[] buffer) {
+        if (HandleEpsonDataByUcastPrint.isContainOpenMoneyBox(buffer, EpsonParseDemo.OPENMONEYBOX)) {
+            String isOpenMoneyBox = SavePasswd.getInstace().readxml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
+            boolean isOPen = isOpenMoneyBox.equals(SavePasswd.OPEN) ? true : false;
+            if (isOPen) {
+                MyTools.openMoneyBox();
+            }
+        }
         if (offSet + buffer.length  > fanhuiBuffer.length) {
             // 扩容 为原来的两倍
             byte[] temp = new byte[fanhuiBuffer.length];

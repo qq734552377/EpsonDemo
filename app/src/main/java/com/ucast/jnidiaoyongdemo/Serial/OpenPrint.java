@@ -2,6 +2,7 @@ package com.ucast.jnidiaoyongdemo.Serial;
 
 import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
+import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
 import com.ucast.jnidiaoyongdemo.protocol_ucast.MsCardProtocol;
 import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
@@ -9,6 +10,7 @@ import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -174,7 +176,7 @@ public class OpenPrint {
     private void AnalyticalProtocol(byte[] buffer) {
         //添加串口数据
         jointBuffer(buffer);
-        EpsonParseDemo.printHexString(buffer);
+        MyTools.writeToFile(EpsonPicture.TEMPBITPATH + File.separator + "templog.txt",EpsonParseDemo.printHexString(buffer));
 //        ExceptionApplication.gLogger.info("所有的数据-->"+EpsonParseDemo.printHexString(buffer));
         while (offSet > 0) {
             int startIndex = getIndexByByte((byte) 0x02);

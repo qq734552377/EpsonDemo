@@ -118,9 +118,14 @@ public class UpdateService extends Service {
 //        NioTcpServer tcpServer = new NioTcpServer(7700);
 //        new Thread(tcpServer).start();
 
+        String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
+        boolean isClose = isOpenPrint.equals(SavePasswd.CLOSEPRINT);
+        setIsClosePrintMode(isClose);
+
         registUsbBroadcast();
         moneyBoxDialog = MyDialog.showIsOpenMoneyBoxDialog();
         EventBus.getDefault().register(this);
+
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -229,11 +234,7 @@ public class UpdateService extends Service {
                 if(base.getMsgType().equals("Success") && base.getData() != null && !base.getData().equals("")){
                     HeartBeatResult heartBeatResult = JSON.parseObject(base.getData(),HeartBeatResult.class);
                     boolean isCloseModle = heartBeatResult.IsOpenPrintModel.equals(SavePasswd.CLOSEPRINT);
-                    if(isCloseModle){
-                        SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
-                    }else {
-                        SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
-                    }
+                    setIsClosePrintMode(isCloseModle);
                 }
             }
 
@@ -253,6 +254,17 @@ public class UpdateService extends Service {
             }
         });
     }
+
+    public void setIsClosePrintMode(boolean isClose){
+        if(isClose){
+            SavePasswd.getInstace().save(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
+            SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
+        }else {
+            SavePasswd.getInstace().save(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
+            SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
+        }
+    }
+
 
     public void setTime(String mytime){
         Date mydate=StringToDate(mytime);

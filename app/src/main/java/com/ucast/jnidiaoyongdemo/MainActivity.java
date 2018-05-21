@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +29,7 @@ import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyDialog;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private Button sendBtn ;
     private TextView tv;
     private TextView msTv;
+    private Switch auto_moneybox_swtich;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +53,20 @@ public class MainActivity extends AppCompatActivity {
         tv.setMovementMethod(ScrollingMovementMethod.getInstance());
         msTv = (TextView) findViewById(R.id.mscard);
         msTv.setMovementMethod(ScrollingMovementMethod.getInstance());
+        auto_moneybox_swtich = findViewById(R.id.open_auto_moneybox);
+        auto_moneybox_swtich.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    SavePasswd.getInstace().save(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
+                    SavePasswd.getInstace().savexml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
+                }else{
+                    SavePasswd.getInstace().save(SavePasswd.ISAUTOMONEYBOX,SavePasswd.CLOSE);
+                    SavePasswd.getInstace().savexml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.CLOSE);
+                }
+
+            }
+        });
 
         Intent ootStartIntent = new Intent(this, UpdateService.class);
         ootStartIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -86,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         EventBus.getDefault().register(this);
-        MyTools.setCameraFixed();
+//        MyTools.setCameraFixed();
 //        startTestSerial();
 
     }
@@ -109,6 +127,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void getDataBaseShow() {
+        String isOpenMoneyBox = SavePasswd.getInstace().readxml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
+        boolean isOPen = isOpenMoneyBox.equals(SavePasswd.OPEN) ? true : false;
+        auto_moneybox_swtich.setChecked(isOPen);
+
         tv.setText("");
         int pathNum = 0;
         int datahNum = 0;
@@ -138,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         EventBus.getDefault().unregister(this);
-        MyTools.setCameraAuto();
+//        MyTools.setCameraAuto();
         super.onDestroy();
     }
 

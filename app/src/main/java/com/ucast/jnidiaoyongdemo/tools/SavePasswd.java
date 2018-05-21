@@ -25,10 +25,14 @@ public class SavePasswd {
 
     public final static String XMLSTARTTAG = "setting";
     public final static String ISOPENPRINT = "isopenprint";
+    public final static String ISAUTOMONEYBOX = "isautomoneybox";
     public final static String OPENPRINT = "open";
     public final static String CLOSEPRINT = "close";
+    public final static String OPEN = "open";
+    public final static String CLOSE = "close";
 
-    private static String [] xmlKeys = {ISOPENPRINT};
+
+    private static String [] xmlKeys = {ISOPENPRINT,ISAUTOMONEYBOX};
 
 
     private SavePasswd() {

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -42,6 +43,7 @@ public class EpsonParseDemo {
     public static final byte[] FONT_BOLD_NO = new byte[]{0x1B, 0x45, 0x00};
     public static final String startEpsonStr = "1D 38 4C";
     public static final byte[] STARTEPSONBYTE = {0x1D,0x38,0x4C};
+    public static final byte[] OPENMONEYBOX = {0x1B,0x70};
     public static final String endEpsonStr = "1D 28 4C";
     public static final byte[] ENDEPSONBYTE = {0x1D,0x28,0x4C};
 
@@ -137,6 +139,8 @@ public class EpsonParseDemo {
 
                     i = i + bitArrLen;
                 }else if(datas[i] == 0x1B && i + 1 < datas.length && datas[i + 1] == 0x70){
+                    //打开钱箱指令
+//                    MyTools.openMoneyBox();
                     i = i + 5;
                 }else {
                     index++;

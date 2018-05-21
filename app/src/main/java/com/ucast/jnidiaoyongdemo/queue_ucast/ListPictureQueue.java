@@ -33,15 +33,14 @@ public class ListPictureQueue {
                     if (list.size() <= 0)
                         return;
                     PictureModel info = list.get(0);
-                    long time = (long) (SystemClock.elapsedRealtime() - info.getOutTime()) / 1000;
-                    if (time < 3)
+                    long time = SystemClock.elapsedRealtime() - info.getOutTime();
+                    if (time < 2600)
                         return;
                     SendAgain(true);
-
                 }
             }
 
-        }), 2000L, 2000L);
+        }), 2000L, 800L);
         timer.initMyTimer().startMyTimer();
     }
 
@@ -128,8 +127,14 @@ public class ListPictureQueue {
             return;
         }
         int curIndex = 0;
-        if (isSendAgain)
+        if (isSendAgain) {
             curIndex = info.getCurtNum();
+            if (curIndex >= info.BufferPicture.size()){
+                list.remove(0);
+                ExceptionApplication.gLogger.info(" 发送当前的包数超过总包数---> " + curIndex + " package");
+                return;
+            }
+        }
         byte[] str = info.BufferPicture.get(curIndex);
         info.setOutTime(SystemClock.elapsedRealtime());
         SendPackage.sendToPrinter(str);
