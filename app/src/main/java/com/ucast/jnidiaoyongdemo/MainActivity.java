@@ -9,6 +9,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Button sendBtn ;
     private TextView tv;
     private TextView msTv;
-    private Switch auto_moneybox_swtich;
+    private RadioGroup auto_moneybox_group;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,18 +54,20 @@ public class MainActivity extends AppCompatActivity {
         tv.setMovementMethod(ScrollingMovementMethod.getInstance());
         msTv = (TextView) findViewById(R.id.mscard);
         msTv.setMovementMethod(ScrollingMovementMethod.getInstance());
-        auto_moneybox_swtich = findViewById(R.id.open_auto_moneybox);
-        auto_moneybox_swtich.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        auto_moneybox_group = findViewById(R.id.open_auto_moneybox);
+        auto_moneybox_group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    SavePasswd.getInstace().save(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
-                    SavePasswd.getInstace().savexml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
-                }else{
-                    SavePasswd.getInstace().save(SavePasswd.ISAUTOMONEYBOX,SavePasswd.CLOSE);
-                    SavePasswd.getInstace().savexml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.CLOSE);
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId){
+                    case R.id.auto_open:
+                        SavePasswd.getInstace().save(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
+                        SavePasswd.getInstace().savexml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
+                        break;
+                    case R.id.man_open:
+                        SavePasswd.getInstace().save(SavePasswd.ISAUTOMONEYBOX,SavePasswd.CLOSE);
+                        SavePasswd.getInstace().savexml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.CLOSE);
+                        break;
                 }
-
             }
         });
 
@@ -129,7 +132,11 @@ public class MainActivity extends AppCompatActivity {
     public void getDataBaseShow() {
         String isOpenMoneyBox = SavePasswd.getInstace().readxml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
         boolean isOPen = isOpenMoneyBox.equals(SavePasswd.OPEN) ? true : false;
-        auto_moneybox_swtich.setChecked(isOPen);
+        if (isOPen){
+            auto_moneybox_group.check(R.id.auto_open);
+        }else{
+            auto_moneybox_group.check(R.id.man_open);
+        }
 
         tv.setText("");
         int pathNum = 0;
