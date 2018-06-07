@@ -38,6 +38,7 @@ import com.ucast.jnidiaoyongdemo.Serial.UsbWithByteSerial;
 import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
+import com.ucast.jnidiaoyongdemo.socket.net_print.NioNetPrintServer;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyDialog;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
@@ -117,6 +118,10 @@ public class UpdateService extends Service {
 
 //        NioTcpServer tcpServer = new NioTcpServer(7700);
 //        new Thread(tcpServer).start();
+
+        //开启网口打印监听
+        NioNetPrintServer netPrintServer = new NioNetPrintServer();
+        new Thread(netPrintServer).start();
 
         String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
         boolean isClose = isOpenPrint.equals(SavePasswd.CLOSEPRINT);

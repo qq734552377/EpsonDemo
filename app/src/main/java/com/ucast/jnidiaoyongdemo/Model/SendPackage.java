@@ -6,8 +6,6 @@ import com.ucast.jnidiaoyongdemo.Serial.OpenPrint;
 import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyKeyboardSerial;
 import com.ucast.jnidiaoyongdemo.globalMapObj.MermoyPrinterSerial;
 import com.ucast.jnidiaoyongdemo.socket.Memory.NettyChannelMap;
-import com.ucast.jnidiaoyongdemo.socket.Memory.NettyClientMap;
-import com.ucast.jnidiaoyongdemo.socket.net_print.NioTcpClient;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -38,13 +36,6 @@ public class SendPackage {
 
         }
 
-    }
-
-    public static boolean sendDataToNetPrintPort(byte[] Data) {
-        NioTcpClient client = NettyClientMap.GetChannel(Config.NETPrintName);
-        if (client == null)
-            return false;
-        return client.Send(Data);
     }
 
     public static boolean sendAllClient(byte[] Data) {

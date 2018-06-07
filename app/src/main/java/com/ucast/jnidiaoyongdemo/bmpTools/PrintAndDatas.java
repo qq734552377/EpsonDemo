@@ -11,14 +11,14 @@ import java.lang.reflect.Type;
 public class PrintAndDatas {
     //文字数据
     public String datas = "";
-    public int LINE_STRING_NUMBER = 32 ;
+    public int FONT_SIZE = 24 ;
+    public int LINE_STRING_NUMBER = SomeBitMapHandleWay.PRINT_WIDTH / (FONT_SIZE / 2) ;
     public int OFFSET_X = 0 ;
     public int OFFSET_Y = 40 ;
-    public int FONT_SIZE = 24 ;
     public int FONT_SIZE_TIMES = 1 ;
     public int LINE_HEIGHT = 40 ;
     public int FONT_SIZE_TYPE = Typeface.NORMAL ;
-    public String FONT = "fangsong_GB2312.ttf" ;
+    public String FONT = "simsun.ttf" ;
 
     //是否是位图
     public boolean isBit = false;

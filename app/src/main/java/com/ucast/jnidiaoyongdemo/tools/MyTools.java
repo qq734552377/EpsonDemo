@@ -276,7 +276,6 @@ public class MyTools {
             @Override
             public void onSuccess(ResponseEntity o) {
                 handleTicket(o.getResult());
-                UploadDataQueue.sendNextByResult(true);
             }
 
             @Override
@@ -307,7 +306,6 @@ public class MyTools {
             @Override
             public void onSuccess(ResponseEntity o) {
                 handleTicket(o.getResult());
-                UploadDataQueue.sendNextByResult(true);
             }
 
             @Override
@@ -340,7 +338,6 @@ public class MyTools {
             @Override
             public void onSuccess(ResponseEntity o) {
                 handleTicket(o.getResult());
-                UploadDataQueue.sendNextByResult(true);
             }
 
             @Override
@@ -363,6 +360,9 @@ public class MyTools {
     public static void handleTicket(String result){
         EventBus.getDefault().postSticky(result);
         BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
+        if (base.getMsgType().equals("Success"))
+            UploadDataQueue.sendNextByResult(true);
+
         if (base.getMsgType().equals("Success") && base.getData() != null && !base.getData().equals("")){
             TicketMsgResult ticketMsgResult = JSON.parseObject(base.getData(),TicketMsgResult.class);
             double moneyD = Double.parseDouble(ticketMsgResult.getAmount());

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Created by Administrator on 2016/6/8.
+ * Created by pj on 2016/6/8.
  * 描述：打印图片生成
  */
 public class EpsonPicture {
@@ -33,11 +33,13 @@ public class EpsonPicture {
     public static final String TEMPBITPATH = EpsonPicture.ALBUM_PATH + File.separator + "Ucast/temp";
     private final static String BIT_NAME = "/Ucast/ucast.bmp";
 
-    private final static int LINE_STRING_NUMBER = 32 ;
-    private final static int LINE_BIG_STRING_NUMBER = 21 ;
-    private final static int OFFSET_X = 10 ;
-    private final static int OFFSET_Y = 40 ;
+
     private final static int FONT_SIZE = 24 ;
+    private final static int LINE_STRING_NUMBER = SomeBitMapHandleWay.PRINT_WIDTH / ( FONT_SIZE / 2) ;
+    private final static int LINE_BIG_STRING_NUMBER = 21 ;
+    private final static int OFFSET_X = 0 ;
+    private final static int OFFSET_Y = 0 ;
+
     private final static int FONT_SIZE_TIMES = 1 ;
     private final static int LINE_HEIGHT = 40 ;
     private final static String FONT = "simsun.ttc" ;
@@ -102,16 +104,16 @@ public class EpsonPicture {
         List<String> list = getLineStringDatas(string);
 
         int Height = list.size() * LINE_HEIGHT;
-        Bitmap bmp = Bitmap.createBitmap(384, Height + CUT_PAPER_HEIGHT, Bitmap.Config.RGB_565);
+        Bitmap bmp = Bitmap.createBitmap(SomeBitMapHandleWay.PRINT_WIDTH, Height + CUT_PAPER_HEIGHT, Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bmp);
         canvas.drawColor(Color.WHITE);
         Paint print = new Paint();
         print.setColor(Color.BLACK);
-        print.setTextSize(24);
+        print.setTextSize(FONT_SIZE);
         Typeface font = Typeface.createFromAsset(ExceptionApplication.getInstance().getAssets(),FONT);
         print.setTypeface(Typeface.create(font,Typeface.NORMAL));
         for (int i = 0; i < list.size(); i++) {
-            canvas.drawText(list.get(i), 0, i * LINE_HEIGHT + CUT_PAPER_HEIGHT, print);
+            canvas.drawText(list.get(i), OFFSET_X, i * LINE_HEIGHT + CUT_PAPER_HEIGHT , print);
         }
         canvas.save(Canvas.ALL_SAVE_FLAG);
         canvas.restore();
@@ -125,7 +127,7 @@ public class EpsonPicture {
         List<String> list = getBigLineStringDatas(string);
 
         int Height = list.size() * LINE_HEIGHT;
-        Bitmap bmp = Bitmap.createBitmap(384, Height + CUT_PAPER_HEIGHT, Bitmap.Config.RGB_565);
+        Bitmap bmp = Bitmap.createBitmap(SomeBitMapHandleWay.PRINT_WIDTH, Height + CUT_PAPER_HEIGHT, Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bmp);
         canvas.drawColor(Color.WHITE);
         Paint print = new Paint();

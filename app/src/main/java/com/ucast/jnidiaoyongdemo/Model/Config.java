@@ -21,7 +21,7 @@ public class Config {
     public final static String UsbSerial = "/dev/g_printer0";
     public final static int PRINT_BAIDRATE = 115200 * 4;
     public final static int USB_BAIDRATE = 115200;
-    public final static int NET_PRINT_PORT = 43078;
+    public final static int NET_PRINT_PORT = 9100;
     public static final String PICPATHDIR =  CrashHandler.ALBUM_PATH + "/pic";
 
 }
