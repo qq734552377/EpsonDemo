@@ -43,6 +43,9 @@ public class NetPrinterHandle extends ChannelInboundHandlerAdapter {
             if (packageMessage == null)
                 return;
             MyTools.writeToFile(EpsonPicture.TEMPBITPATH + File.separator + "netPrint.txt",EpsonParseDemo.printHexString(buffer) + "\n");
+//            MyTools.writeToFile(EpsonPicture.TEMPBITPATH + File.separator + "netPrintStr.txt",new String(buffer) + "\n");
+            Channel channel = ctx.channel();
+            channel.writeAndFlush(buffer);
             packageMessage.Import(buffer, 0, len);
             ReferenceCountUtil.release(msg);
         } catch (Exception e) {

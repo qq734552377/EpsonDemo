@@ -16,6 +16,7 @@ import com.ucast.jnidiaoyongdemo.socket.Message.MessageBase;
 import com.ucast.jnidiaoyongdemo.socket.Message.PrintMessage;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
 
 import java.util.List;
@@ -53,7 +54,9 @@ public class NetPrintPackage extends Package {
                 break;
             int len = endIndex + 2;
             byte[] ong_Print_msg = cache.getOneDataFromBuffer(startIndex,len);
-            HandleEpsonDataByUcastPrint.serialString(ong_Print_msg);
+            String netPrinterUploadStr = SavePasswd.getInstace().readxml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.OPEN);
+            boolean isNotUpload = netPrinterUploadStr.equals(SavePasswd.CLOSE);
+            HandleEpsonDataByUcastPrint.serialString(ong_Print_msg,!isNotUpload);
             cache.cutBuffer();
         }
     }

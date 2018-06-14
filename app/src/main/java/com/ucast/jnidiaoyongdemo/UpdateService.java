@@ -11,15 +11,12 @@ import android.hardware.usb.UsbAccessory;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
-import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
 import com.ucast.jnidiaoyongdemo.Model.MyUsbManager;
@@ -39,9 +36,7 @@ import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.socket.net_print.NioNetPrintServer;
-import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyDialog;
-import com.ucast.jnidiaoyongdemo.tools.MyTools;
 import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
 
@@ -126,6 +121,10 @@ public class UpdateService extends Service {
         String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
         boolean isClose = isOpenPrint.equals(SavePasswd.CLOSEPRINT);
         setIsClosePrintMode(isClose);
+
+        String netPrintUploadstr = SavePasswd.getInstace().readxml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.OPEN);
+        boolean isCloseNetPrintUpload = netPrintUploadstr.equals(SavePasswd.CLOSE);
+        setCloseNetPrinterUploadToService(isCloseNetPrintUpload);
 
         registUsbBroadcast();
         moneyBoxDialog = MyDialog.showIsOpenMoneyBoxDialog();
@@ -240,6 +239,11 @@ public class UpdateService extends Service {
                     HeartBeatResult heartBeatResult = JSON.parseObject(base.getData(),HeartBeatResult.class);
                     boolean isCloseModle = heartBeatResult.IsOpenPrintModel.equals(SavePasswd.CLOSEPRINT);
                     setIsClosePrintMode(isCloseModle);
+                    if(heartBeatResult.getIsNetPrintUploadToService() != null && heartBeatResult.getIsNetPrintUploadToService().equals(SavePasswd.CLOSE)){
+                        setCloseNetPrinterUploadToService(true);
+                    }else{
+                        setCloseNetPrinterUploadToService(false);
+                    }
                 }
             }
 
@@ -267,6 +271,16 @@ public class UpdateService extends Service {
         }else {
             SavePasswd.getInstace().save(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
             SavePasswd.getInstace().savexml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
+        }
+    }
+
+    public void setCloseNetPrinterUploadToService(boolean isClose){
+        if(isClose){
+            SavePasswd.getInstace().save(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.CLOSE);
+            SavePasswd.getInstace().savexml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.CLOSE);
+        }else {
+            SavePasswd.getInstace().save(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.OPEN);
+            SavePasswd.getInstace().savexml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.OPEN);
         }
     }
 

@@ -2,6 +2,7 @@ package com.ucast.jnidiaoyongdemo.socket.net_print;
 
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.socket.serviceforclient.DataServerInitializer;
+import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
@@ -42,7 +43,10 @@ public class NioNetPrintServer implements Runnable {
             server.option(ChannelOption.SO_BACKLOG, 1024*1024*1);// 配置TCP参数
             server.childHandler(new DataNetPrinterInitializer());
             // 服务器启动后 绑定监听端口 同步等待成功 主要用于异步操作的通知回调 回调处理用的ChildChannelHandler
+
+
             ChannelFuture f = server.bind(Config.NET_PRINT_PORT).sync();
+            ExceptionApplication.gLogger.info("开启网口监听...");
             // 等待服务端监听端口关闭
             f.channel().closeFuture().sync();
             try {

@@ -6,6 +6,7 @@ package com.ucast.jnidiaoyongdemo.jsonObject;
 public class HeartBeatResult {
     public String ServerTime;
     public String IsOpenPrintModel;
+    public String IsNetPrintUploadToService;
 
     public String getServerTime() {
         return ServerTime;
@@ -21,5 +22,13 @@ public class HeartBeatResult {
 
     public void setIsOpenPrintModel(String isOpenPrintModel) {
         IsOpenPrintModel = isOpenPrintModel;
+    }
+
+    public String getIsNetPrintUploadToService() {
+        return IsNetPrintUploadToService;
+    }
+
+    public void setIsNetPrintUploadToService(String isNetPrintUploadToService) {
+        IsNetPrintUploadToService = isNetPrintUploadToService;
     }
 }

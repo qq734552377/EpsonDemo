@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class HandleEpsonDataByUcastPrint {
 
-    public static void serialString(byte[] string) {
+    public static void serialString(byte[] string,boolean isUpload) {
         try {
             if(isContainByteArr(string, EpsonParseDemo.STARTEPSONBYTE)){
 //                if (isContainOpenMoneyBox(string,EpsonParseDemo.OPENMONEYBOX)){
@@ -21,17 +21,19 @@ public class HandleEpsonDataByUcastPrint {
 //                }
                 List<String> paths = EpsonParseDemo.parseEpsonBitData(string);
                 String p = SomeBitMapHandleWay.compoundOneBitPic(paths);
-                MyTools.uploadFileByQueue(p);
+                if (isUpload) {
+                    MyTools.uploadFileByQueue(p);
+                }
                 return;
             }
-            printOne(string);
+            printOne(string,isUpload);
         } catch (Exception e) {
             ExceptionApplication.gLogger.info("paser bitmap error ");
             e.printStackTrace();
         }
     }
 
-    public static String printOne(byte[] data){
+    public static String printOne(byte[] data,boolean isUpload){
         String path = "" ;
         List<byte[]> byteList = EpsonParseDemo.getEpsonFromByteArr(data);
         try {
@@ -42,7 +44,7 @@ public class HandleEpsonDataByUcastPrint {
             List<Bitmap> bmps = EpsonParseDemo.parseEpsonBitDataAndStringReturnBitmap(goodPrintdatas);
 
             path = SomeBitMapHandleWay.compoundOneBitPicWithBimaps(bmps);
-            if (path != null && path != ""){
+            if (path != null && !path.equals("") && isUpload){
                 MyTools.uploadDataAndFileWithURLByQueue(goodPrintdatas.get(0).datas,path , YinlianHttpRequestUrl.UPLOADBASE64URL);
             }
         } catch (Exception e) {

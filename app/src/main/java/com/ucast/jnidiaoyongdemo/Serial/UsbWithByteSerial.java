@@ -157,7 +157,7 @@ public class UsbWithByteSerial {
                     break;
                 int len = endIndex + 2;
                 byte[] ong_Print_msg = cache.getOneDataFromBuffer(startIndex,len);
-                HandleEpsonDataByUcastPrint.serialString(ong_Print_msg);
+                HandleEpsonDataByUcastPrint.serialString(ong_Print_msg,true);
                 cache.cutBuffer();
             }
         }catch (Exception e){
