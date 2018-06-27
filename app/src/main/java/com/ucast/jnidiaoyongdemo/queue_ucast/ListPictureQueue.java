@@ -2,7 +2,7 @@ package com.ucast.jnidiaoyongdemo.queue_ucast;
 
 import android.os.SystemClock;
 
-import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
+import com.ucast.jnidiaoyongdemo.xutilEvents.MoneyBoxEvent;
 import com.ucast.jnidiaoyongdemo.Model.PictureModel;
 import com.ucast.jnidiaoyongdemo.Model.SendPackage;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;

@@ -53,6 +53,7 @@ public class CaptureActivity extends Activity implements Callback {
     public static int CAMERAID = 1;
     public static boolean ISPORTRAIT = true;
     public final static String CAMERAKEY = "camera_type";
+    public final static String RESULT = "result";
     /**
      * Called when the activity is first created.
      */
@@ -198,9 +199,17 @@ public class CaptureActivity extends Activity implements Callback {
         });
 //        dialog.create().show();
         KeyboardSwitch.sendToKeyboard(result);
-        this.finish();
+        closeAc(CAMERAID,result);
 
     }
+
+    public void closeAc(int type, String msg) {
+        Intent intent = new Intent();
+        intent.putExtra(RESULT, msg);
+        setResult(type, intent);
+        CaptureActivity.this.finish();
+    }
+
 
     private void initBeepSound() {
         if (playBeep && mediaPlayer == null) {

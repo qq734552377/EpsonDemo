@@ -1,4 +1,4 @@
-package com.ucast.jnidiaoyongdemo.Model;
+package com.ucast.jnidiaoyongdemo.xutilEvents;
 
 /**
  * Created by pj on 2018/5/11.

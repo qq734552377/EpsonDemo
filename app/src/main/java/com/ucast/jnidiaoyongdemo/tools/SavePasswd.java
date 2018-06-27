@@ -26,6 +26,7 @@ public class SavePasswd {
     public final static String XMLSTARTTAG = "setting";
     public final static String ISOPENPRINT = "isopenprint";
     public final static String ISAUTOMONEYBOX = "isautomoneybox";
+    public final static String ISMAINSERVICE = "ismainservice";
     public final static String ISNETPRINTUPLOADTOSERVICE = "isnetprintuploadtoservice";
     public final static String OPENPRINT = "open";
     public final static String CLOSEPRINT = "close";

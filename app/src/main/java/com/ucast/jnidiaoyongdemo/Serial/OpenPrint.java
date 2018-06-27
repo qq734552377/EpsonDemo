@@ -1,5 +1,7 @@
 package com.ucast.jnidiaoyongdemo.Serial;
 
+import android.util.EventLog;
+
 import com.ucast.jnidiaoyongdemo.Model.Common;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
@@ -11,6 +13,7 @@ import com.ucast.jnidiaoyongdemo.bmpTools.EpsonParseDemo;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.xutilEvents.MsCardEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -132,7 +135,7 @@ public class OpenPrint {
             if (item != null) {
                 SendMessage(item);
             } else {
-                Thread.sleep(1);
+                Thread.sleep(4);
             }
         } catch (Exception e) {
 
@@ -346,15 +349,18 @@ public class OpenPrint {
                 msSB.delete(0,msSB.length());
                 msSB.append("T1");
                 msSB.append(new String(dataMs));
+                EventBus.getDefault().post(new MsCardEvent(1,new String(dataMs)));
                 break;
             case 1 :
                 msSB.append("T2");
                 msSB.append(new String(dataMs));
+                EventBus.getDefault().post(new MsCardEvent(2,new String(dataMs)));
                 break;
             case 2:
                 msSB.append("T3");
                 msSB.append(new String(dataMs));
                 EventBus.getDefault().postSticky(msSB.toString());
+                EventBus.getDefault().post(new MsCardEvent(3,new String(dataMs)));
                 ExceptionApplication.gLogger.info("Mscard data ----->" + msSB.toString());
                 SendPackage.sendToPrinter(MsCardProtocol.getRegisterMsCardProtocol());
                 break;

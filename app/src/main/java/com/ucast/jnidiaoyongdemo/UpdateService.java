@@ -18,7 +18,7 @@ import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
 import com.ucast.jnidiaoyongdemo.Model.Config;
-import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
+import com.ucast.jnidiaoyongdemo.xutilEvents.MoneyBoxEvent;
 import com.ucast.jnidiaoyongdemo.Model.MyUsbManager;
 import com.ucast.jnidiaoyongdemo.jsonObject.HeartBeatResult;
 import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
@@ -129,6 +129,9 @@ public class UpdateService extends Service {
         registUsbBroadcast();
         moneyBoxDialog = MyDialog.showIsOpenMoneyBoxDialog();
         EventBus.getDefault().register(this);
+
+
+        YinlianHttpRequestUrl.writeToTempFile();
 
     }
 

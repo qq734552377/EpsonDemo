@@ -2,13 +2,17 @@ package com.ucast.jnidiaoyongdemo.tools;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.ucast.jnidiaoyongdemo.Model.AppInfo;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
@@ -117,5 +121,21 @@ public class MyDialog {
         alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_TOAST);
 
         return alertDialog;
+    }
+
+    public static ProgressDialog createProgressDialog(Context context, String s){
+        ProgressDialog dialog2 = new ProgressDialog(context);
+        dialog2.setProgressStyle(ProgressDialog.STYLE_SPINNER);// 设置进度条的形式为圆形转动的进度条
+        dialog2.setCancelable(false);// 设置是否可以通过点击Back键取消
+        dialog2.setCanceledOnTouchOutside(false);// 设置在点击Dialog外是否取消Dialog进度条
+//            dialog2.setTitle(mContext.getResources().getString(R.string.tishi));
+        dialog2.setMessage(s);
+        return dialog2;
+    }
+    public static void showToast(Context context, String s) {
+        Toast.makeText(context,s,Toast.LENGTH_SHORT).show();
+    }
+    public static void showSnack(View view, String s) {
+        Snackbar.make(view,s,Snackbar.LENGTH_SHORT).show();
     }
 }

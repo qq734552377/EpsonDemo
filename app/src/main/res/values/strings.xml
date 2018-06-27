@@ -9,6 +9,11 @@
     <string name="permission_read_external_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_READ_EXTERNAL_STORAGE</string>
     <string name="permission_white_external_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_WRITE_EXTERNAL_STORAGE</string>
     <string name="permission_recode_audio_hint">没有此权限，无法开启这个功能，请开启权限。PERMISSION_RECORD_AUDIO</string>
+
+    <string name="settings">设置</string>
+    <string name="testDevice">设备测试</string>
+
+
     <string-array name="permissions">
         <item>@string/permission_recode_audio_hint</item>
         <item>@string/permission_get_accounts_hint</item>
@@ -20,6 +25,9 @@
         <item>@string/permission_read_external_hint</item>
         <item>@string/permission_white_external_hint</item>
     </string-array>
+    <string name="title_activity_test_main">TestMainActivity</string>
+
+
 </resources>
 
 

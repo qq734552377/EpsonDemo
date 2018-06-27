@@ -35,7 +35,7 @@ public class UsbWithByteSerial {
     private byte[] Buffer;
     private byte[] allBufferDatas;
     private ArrayQueue<byte[]> _mQueues = new ArrayQueue<byte[]>(0x400);
-    private int waitNextMsgTime = 2;
+    private int waitNextMsgTime = 4;
     private int waitNextPicTime = 6;
     private Handler handler;
     private ByteArrCache cache;

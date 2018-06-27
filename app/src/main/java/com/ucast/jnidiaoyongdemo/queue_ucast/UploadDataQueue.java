@@ -2,7 +2,6 @@ package com.ucast.jnidiaoyongdemo.queue_ucast;
 
 import android.os.SystemClock;
 
-import com.ucast.jnidiaoyongdemo.Model.MoneyBoxEvent;
 import com.ucast.jnidiaoyongdemo.Model.UploadData;
 import com.ucast.jnidiaoyongdemo.bmpTools.EpsonPicture;
 import com.ucast.jnidiaoyongdemo.db.UploadDBHelper;
@@ -10,8 +9,6 @@ import com.ucast.jnidiaoyongdemo.mytime.MyTimeTask;
 import com.ucast.jnidiaoyongdemo.mytime.MyTimer;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;

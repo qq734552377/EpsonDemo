@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ucast.jnidiaoyongdemo.testActs.TestMainActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_deviceId"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="这是测试哦"
+                android:gravity="center_vertical"
+                android:textAlignment="center" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                >
+                <ImageView style="@style/HorizontalIvBordingStyle" />
+                <LinearLayout style="@style/ThreeWrapLinerLayoutStyle">
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_bluetooth"
+                            style="@style/BtStyle"
+                            android:text="蓝牙" />
+
+                        <ImageView
+                            android:id="@+id/iv_blutooth"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_wifi"
+                            style="@style/BtStyle"
+                            android:text="WiFi" />
+
+                        <ImageView
+                            android:id="@+id/iv_wifi"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                </LinearLayout>
+
+                <ImageView style="@style/HorizontalIvBordingStyle" />
+                <LinearLayout style="@style/ThreeWrapLinerLayoutStyle">
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_serial"
+                            style="@style/BtStyle"
+                            android:text="串口" />
+
+                        <ImageView
+                            android:id="@+id/iv_serial"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_msCard"
+                            style="@style/BtStyle"
+                            android:text="磁条卡" />
+
+                        <ImageView
+                            android:id="@+id/iv_msCard"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_money"
+                            style="@style/BtStyle"
+                            android:text="钱箱" />
+
+                        <ImageView
+                            android:id="@+id/iv_money"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                </LinearLayout>
+
+                <ImageView style="@style/HorizontalIvBordingStyle" />
+                <LinearLayout style="@style/ThreeWrapLinerLayoutStyle">
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_printer"
+                            style="@style/BtStyle"
+                            android:text="打印机" />
+
+                        <ImageView
+                            android:id="@+id/iv_printer"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_usb_p"
+                            style="@style/BtStyle"
+                            android:text="USB1" />
+
+                        <ImageView
+                            android:id="@+id/iv_usb_py"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_qian_camera"
+                            style="@style/BtStyle"
+                            android:text="前置摄像头" />
+
+                        <ImageView
+                            android:id="@+id/iv_qian_camera"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                </LinearLayout>
+
+                <ImageView style="@style/HorizontalIvBordingStyle" />
+                <LinearLayout style="@style/ThreeWrapLinerLayoutStyle">
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_cemian_camera"
+                            style="@style/BtStyle"
+                            android:text="侧面摄像头" />
+
+                        <ImageView
+                            android:id="@+id/iv_cemian_camera"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_start_test"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:backgroundTint="@color/color_10"
+                            android:textColor="@color/color_3"
+                            android:text="开始测试" />
+
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_save_exit"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:backgroundTint="@color/color_10"
+                            android:textColor="@color/color_3"
+                            android:text="保存并退出" />
+                    </LinearLayout>
+
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                </LinearLayout>
+
+
+
+                <ImageView style="@style/HorizontalIvBordingStyle" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/tv_showMessage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

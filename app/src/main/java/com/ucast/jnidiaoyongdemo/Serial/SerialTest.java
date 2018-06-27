@@ -9,6 +9,7 @@ import com.ucast.jnidiaoyongdemo.protocol_ucast.PrinterProtocol;
 import com.ucast.jnidiaoyongdemo.queue_ucast.ListPictureQueue;
 import com.ucast.jnidiaoyongdemo.tools.ArrayQueue;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
+import com.ucast.jnidiaoyongdemo.xutilEvents.Serial_huihuanEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,10 +74,10 @@ public class SerialTest {
                     WRun();
                 }
             }).start();
-            ExceptionApplication.gLogger.info("Printer serial "+Path+" open normally !");
+            ExceptionApplication.gLogger.info("串口 serial "+Path+" open normally !");
             return true;
         } catch (IOException e) {
-            ExceptionApplication.gLogger.info("Printer serial "+ Path +" open failed !");
+            ExceptionApplication.gLogger.info("串口 serial "+ Path +" open failed !");
             return false;
         }
     }
@@ -173,16 +174,14 @@ public class SerialTest {
 
     private void AnalyticalProtocol(byte[] buffer) {
         ExceptionApplication.gLogger.info( Path + "的所有的数据-->"+ new String(buffer));
-        EventBus.getDefault().postSticky(Path + "的所有的数据-->"+ new String(buffer));
+        EventBus.getDefault().post(new Serial_huihuanEvent(new String(buffer)));
     }
     //关闭
     public void Dispose() {
         synchronized (SerialTest.class) {
             if (!mDispose) {
                 mDispose = true;
-                ExceptionApplication.gLogger.error("Printer serial error close!");
                 MyDispose();
-                PrinterSerialRestart.Check();
             }
         }
     }
