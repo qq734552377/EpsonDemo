@@ -432,6 +432,19 @@ public class MyTools {
         }
     }
 
+    public static void writeToFileNoappend(String path , String data){
+        try{
+            File f = new File(path);
+            FileOutputStream fout = new FileOutputStream(f , false);
+            BufferedOutputStream buff = new BufferedOutputStream(fout);
+            buff.write((data + "\r\n").getBytes());
+            buff.flush();
+            buff.close();
+        }catch (Exception e){
+
+        }
+    }
+
     public static void sendOrderToDeviceFile(String filePath,String order){
         File f = new File(filePath);
         if (!f.exists())

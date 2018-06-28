@@ -82,6 +82,19 @@
                             style="@style/IvStyle" />
 
                     </LinearLayout>
+                    <ImageView style="@style/VerticalIvBordingStyle" />
+                    <LinearLayout style = "@style/BtnWrapLinerLayoutStyle">
+
+                        <Button
+                            android:id="@+id/bt_two_eth"
+                            style="@style/BtStyle"
+                            android:text="两个网口" />
+
+                        <ImageView
+                            android:id="@+id/iv_two_eth"
+                            style="@style/IvStyle" />
+
+                    </LinearLayout>
 
                     <ImageView style="@style/VerticalIvBordingStyle" />
                 </LinearLayout>
@@ -94,7 +107,7 @@
                         <Button
                             android:id="@+id/bt_serial"
                             style="@style/BtStyle"
-                            android:text="串口" />
+                            android:text="串口回环" />
 
                         <ImageView
                             android:id="@+id/iv_serial"

@@ -1,5 +1,7 @@
 package com.ucast.jnidiaoyongdemo.Model;
 
+import android.os.Environment;
+
 import com.ucast.jnidiaoyongdemo.tools.CrashHandler;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
@@ -23,5 +25,6 @@ public class Config {
     public final static int USB_BAIDRATE = 115200;
     public final static int NET_PRINT_PORT = 9100;
     public static final String PICPATHDIR =  CrashHandler.ALBUM_PATH + "/pic";
+    public static final String TESTRESULTDIR = Environment.getExternalStorageDirectory().toString()+"/Ucast";
 
 }

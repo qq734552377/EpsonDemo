@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class TestMainActivity extends BaseNavActivity {
     public final String BLUEBOOTH_TEST= "bluetooth";
     public final String WIFI= "wifi";
-    public final String WLAN= "wlan";
+    public final String TWO_ETH= "two_eth";
     public final String SERIAL= "serial";
     public final String MSCARD= "mscard";
     public final String MONEYBOX= "moneybox";
@@ -54,6 +54,11 @@ public class TestMainActivity extends BaseNavActivity {
     public final String USB_P= "usb_p";
     public final String QIAN_CAMERA= "qian_camera";
     public final String CE_CAMERA= "ce_camera";
+
+    public String[] allTestItems = {BLUEBOOTH_TEST,WIFI,TWO_ETH,SERIAL,MSCARD,
+                                    MONEYBOX,PRINTER,USB_P,QIAN_CAMERA,CE_CAMERA
+                                    };
+
 
     public final String TEST_SUCCESS = "测试通过";
     public final String TEST_FAIL = "测试失败";
@@ -68,12 +73,15 @@ public class TestMainActivity extends BaseNavActivity {
     public Dialog moneyboxDialog;
     public Dialog printerboxDialog;
     public Dialog usb_p_Dialog;
+    public Dialog two_ethDialog;
 
     public SerialTest serial_huihuan;
 
 
     public ThreadPoolExecutor poolExecutor;
     public static boolean isAutoTest = false;
+
+    public boolean isSerialTestSuccess = false;
 
     public WifiManager manager;
     public WifiConnect wifiConnect;
@@ -97,6 +105,9 @@ public class TestMainActivity extends BaseNavActivity {
         wifiConnect=new WifiConnect(manager);
         progressDialog = MyDialog.createProgressDialog(this,"测试中...");
         msProgressDialog = MyDialog.createProgressDialog(this,"磁条卡测试，请刷卡");
+        for (int i = 0; i < allTestItems.length; i++) {
+            save.save(allTestItems[i],TEST_NO);
+        }
     }
     @Event(R.id.bt_bluetooth)
     private void testWBlueTooth(View v){
@@ -106,6 +117,11 @@ public class TestMainActivity extends BaseNavActivity {
     @Event(R.id.bt_wifi)
     private void testWifi(View v){
         testWiFiFunc();
+    }
+
+    @Event(R.id.bt_two_eth)
+    private void testTwo_Eth(View v){
+        testTwo_EthFunc();
     }
 
     @Event(R.id.bt_serial)
@@ -133,8 +149,6 @@ public class TestMainActivity extends BaseNavActivity {
         testP_USBFunc();
     }
 
-
-
     //前面摄像头测试
     @Event(R.id.bt_qian_camera)
     private void testQianmianCamera(View v){
@@ -152,18 +166,20 @@ public class TestMainActivity extends BaseNavActivity {
         testBluetoothFunc();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    //保存并退出
+    @Event(R.id.bt_save_exit)
+    private void save_exit(View v){
+        StringBuilder sb = new StringBuilder();
+        sb.append("测试时间:" + MyTools.millisToDateString(System.currentTimeMillis()) + "\n");
+        sb.append("设备MAC:" + Config.DEVICE_ID + "\n");
+        for (int i = 0; i < allTestItems.length; i++) {
+            String result = save.getIp(allTestItems[i],TEST_NO);
+            sb.append(allTestItems[i] + ":" + result + "\n");
+        }
+        String path = Config.TESTRESULTDIR + "/测试结果_" + Config.DEVICE_ID + ".txt";
+        MyTools.writeToFileNoappend(path,sb.toString());
+        this.finish();
+    }
 
     //测试蓝牙
     public void testBluetoothFunc(){
@@ -192,16 +208,46 @@ public class TestMainActivity extends BaseNavActivity {
         });
     }
 
+    //测试两个网口
+    public void testTwo_EthFunc(){
+        if (two_ethDialog == null){
+            AlertDialog.Builder builder=new AlertDialog.Builder(this);
+            builder.setTitle("提示");
+            builder.setMessage("请测试两个网口，是否都可用？");
+            builder.setPositiveButton("都可用", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    wifiConnect.openWifi();
+                    setTestResult(true,R.id.iv_two_eth,TWO_ETH);
+                }
+            });
+            builder.setNegativeButton("不可用", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    wifiConnect.openWifi();
+                    setTestResult(false,R.id.iv_two_eth,TWO_ETH);
+                }
+            });
+            two_ethDialog = builder.create();
+        }
+        wifiConnect.closeWifi();
+        two_ethDialog.show();
+    }
+
     //测试串口
     public void testSerialFunc(){
         progressDialog.show();
+        isSerialTestSuccess = false;
         startTestSerial();
         poolExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     Thread.sleep(2000);
-                    EventBus.getDefault().post(new Serial_huihuanEvent("失败",false));
+                    if (!isSerialTestSuccess)
+                        EventBus.getDefault().post(new Serial_huihuanEvent("失败",false));
                 }catch (Exception e){
 
                 }
@@ -354,9 +400,10 @@ public class TestMainActivity extends BaseNavActivity {
     public void handleSerialResult(Serial_huihuanEvent data) {
         if (!data.isFromSerial()){
             progressDialog.dismiss();
-            setTestResult(false,R.id.iv_serial,SERIAL);
+            setTestResult(false, R.id.iv_serial, SERIAL);
             return;
         }
+        isSerialTestSuccess = true;
         String str = data.getMsg();
         boolean isOK = str!=null && !str.equals("") && SERIAL_TEST_STR.contains(str);
         setTestResult(isOK,R.id.iv_serial,SERIAL);
@@ -406,6 +453,10 @@ public class TestMainActivity extends BaseNavActivity {
                 break;
             case R.id.iv_wifi:
                 if (isAutoTest)
+                    testTwo_EthFunc();
+                break;
+            case R.id.iv_two_eth:
+                if (isAutoTest)
                     testSerialFunc();
                 break;
             case R.id.iv_serial:
@@ -434,6 +485,7 @@ public class TestMainActivity extends BaseNavActivity {
                 break;
             case R.id.iv_cemian_camera:
                 isAutoTest = false;
+                showToast("记得保存测试结果哦！");
                 break;
 
         }
