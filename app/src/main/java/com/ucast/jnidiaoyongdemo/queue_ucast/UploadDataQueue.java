@@ -94,15 +94,7 @@ public class UploadDataQueue {
             sendAgain();
             return;
         }
-        if (one.getType() == UploadData.PATH_TYPE){
-            MyTools.uploadFile(one.getPath(), YinlianHttpRequestUrl.UPLOADFILEURL);
-        }else{
-            if (one.getUpLoadURL() == null) {
-                MyTools.uploadData(one.getData(), YinlianHttpRequestUrl.UPLOADBASE64URL);
-            }else{
-                MyTools.uploadDataWithFile(one.getData(),one.getPath(),YinlianHttpRequestUrl.UPLOADBASE64URL);
-            }
-        }
+        MyTools.uploadOneUploadData(one);
     }
 
     public static void sendNextByResult(boolean result){

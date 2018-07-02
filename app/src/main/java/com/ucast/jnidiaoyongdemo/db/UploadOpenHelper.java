@@ -16,6 +16,7 @@ public class UploadOpenHelper extends SQLiteOpenHelper {
 	public static String UPload_TYPE_KEY = "type";
 	public static String UPLOAD_PATH_KEY = "path";
 	public static String UPLOAD_DATA_KEY = "data";
+	public static String UPLOAD_MSG_CREATE_TIME = "create_time";
 	public static String UPLOAD_IS_UPLOAD_KEY = "is_upload";
 
 	private SQLiteDatabase db;
@@ -32,6 +33,7 @@ public class UploadOpenHelper extends SQLiteOpenHelper {
 				+ UPload_TYPE_KEY + " INTEGER,"
 				+ UPLOAD_PATH_KEY +" VARCHAR(100),"
 				+ UPLOAD_DATA_KEY +" TEXT,"
+				+ UPLOAD_MSG_CREATE_TIME + " VARCHAR(50),"
 				+ UPLOAD_IS_UPLOAD_KEY +" INTEGER)");
 
 		//准备数据

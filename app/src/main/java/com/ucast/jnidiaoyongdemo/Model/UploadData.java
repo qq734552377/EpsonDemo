@@ -10,6 +10,7 @@ public class UploadData {
     private String path = null;
     private String upLoadURL = null;
     private String data = null;
+    private String msg_create_time = null;
     private boolean isUploadSuccess = false;
 
     public static final int UPLOAD_FAIL = 0;
@@ -63,5 +64,13 @@ public class UploadData {
 
     public void setUploadSuccess(boolean uploadSuccess) {
         isUploadSuccess = uploadSuccess;
+    }
+
+    public String getMsg_create_time() {
+        return msg_create_time;
+    }
+
+    public void setMsg_create_time(String msg_create_time) {
+        this.msg_create_time = msg_create_time;
     }
 }

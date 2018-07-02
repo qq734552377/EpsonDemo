@@ -245,6 +245,8 @@ public class MyTools {
         UploadData one = new UploadData();
         one.setType(UploadData.PATH_TYPE);
         one.setPath(path);
+        one.setUpLoadURL(YinlianHttpRequestUrl.UPLOADFILEURL);
+        one.setMsg_create_time(MyTools.millisToDateString(System.currentTimeMillis()));
         UploadDataQueue.addOneDataToList(one);
     }
     public static void uploadDataAndFileWithURLByQueue(String data,String path,String url){
@@ -253,24 +255,24 @@ public class MyTools {
         one.setPath(path);
         one.setUpLoadURL(url);
         one.setData(data);
+        one.setMsg_create_time(MyTools.millisToDateString(System.currentTimeMillis()));
         UploadDataQueue.addOneDataToList(one);
     }
 
-    public static void uploadDataByQueue(String data){
-        UploadData one = new UploadData();
-        one.setType(UploadData.DATA_TYPE);
-        one.setData(data);
-        UploadDataQueue.addOneDataToList(one);
-    }
-
-    public static void uploadFile(String path, String url){
+    public static void uploadOneUploadData(UploadData one){
         if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
             return;
         }
-        RequestParams params=new RequestParams(url);
+        RequestParams params = null;
+        if (one.getType() == UploadData.PATH_TYPE){
+            params = new RequestParams(YinlianHttpRequestUrl.UPLOADFILEURL);
+        }else{
+            params = new RequestParams(YinlianHttpRequestUrl.UPLOADBASE64URL);
+            params.addBodyParameter("Content",one.getData());
+        }
         params.setMultipart(true);
-        params.addBodyParameter("work_order_image",new File(path));
-        params.addBodyParameter("Time",millisToDateString(System.currentTimeMillis()));
+        params.addBodyParameter("work_order_image",new File(one.getPath()));
+        params.addBodyParameter("Time",one.getMsg_create_time());
         params.addBodyParameter("Imei", Config.DEVICE_ID);
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
@@ -285,69 +287,6 @@ public class MyTools {
 
             @Override
             public void onCancelled(CancelledException e) {
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-    }
-    public static void uploadData(String data, String url){
-        if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
-            return;
-        }
-        RequestParams params=new RequestParams(url);
-//        params.setMultipart(true);
-        params.addBodyParameter("Content",data);
-        params.addBodyParameter("Time",millisToDateString(System.currentTimeMillis()));
-        params.addBodyParameter("Imei", Config.DEVICE_ID);
-        x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
-            @Override
-            public void onSuccess(ResponseEntity o) {
-                handleTicket(o.getResult());
-            }
-
-            @Override
-            public void onError(Throwable throwable, boolean b) {
-//                UploadDataQueue.sendNextByResult(false);
-            }
-
-            @Override
-            public void onCancelled(CancelledException e) {
-
-            }
-
-            @Override
-            public void onFinished() {
-
-            }
-        });
-    }
-    public static void uploadDataWithFile(String data, String path,String url){
-        if ( !isNetworkAvailable(ExceptionApplication.getInstance())){
-            return;
-        }
-        RequestParams params=new RequestParams(url);
-        params.setMultipart(true);
-        params.addBodyParameter("work_order_image",new File(path));
-        params.addBodyParameter("Content",data);
-        params.addBodyParameter("Time",millisToDateString(System.currentTimeMillis()));
-        params.addBodyParameter("Imei", Config.DEVICE_ID);
-        x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
-            @Override
-            public void onSuccess(ResponseEntity o) {
-                handleTicket(o.getResult());
-            }
-
-            @Override
-            public void onError(Throwable throwable, boolean b) {
-//                UploadDataQueue.sendNextByResult(false);
-            }
-
-            @Override
-            public void onCancelled(CancelledException e) {
-
             }
 
             @Override

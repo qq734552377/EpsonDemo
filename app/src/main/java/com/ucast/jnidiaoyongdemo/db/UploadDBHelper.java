@@ -53,6 +53,7 @@ public class UploadDBHelper {
             one_data.setType(c.getInt(c.getColumnIndex(UploadOpenHelper.UPload_TYPE_KEY)));
             one_data.setPath(c.getString(c.getColumnIndex(UploadOpenHelper.UPLOAD_PATH_KEY)));
             one_data.setData(c.getString(c.getColumnIndex(UploadOpenHelper.UPLOAD_DATA_KEY)));
+            one_data.setMsg_create_time(c.getString(c.getColumnIndex(UploadOpenHelper.UPLOAD_MSG_CREATE_TIME)));
             one_data.setUploadSuccess(c.getInt(c.getColumnIndex(UploadOpenHelper.UPLOAD_IS_UPLOAD_KEY)) == UploadData.UPLOAD_FAIL ? false :true);
             lists.add(one_data);
         }
@@ -79,8 +80,10 @@ public class UploadDBHelper {
         if (type == UploadData.PATH_TYPE){
             values.put(UploadOpenHelper.UPLOAD_PATH_KEY, oneData.getPath());
         }else{
+            values.put(UploadOpenHelper.UPLOAD_PATH_KEY, oneData.getPath());
             values.put(UploadOpenHelper.UPLOAD_DATA_KEY, oneData.getData());
         }
+        values.put(UploadOpenHelper.UPLOAD_MSG_CREATE_TIME,oneData.getMsg_create_time());
         values.put(UploadOpenHelper.UPLOAD_IS_UPLOAD_KEY , oneData.isUploadSuccess() ? UploadData.UPLOAD_SUCESSS : UploadData.UPLOAD_FAIL);
 
         long result = db.insert(UploadOpenHelper.TABLENAME,null,values);
