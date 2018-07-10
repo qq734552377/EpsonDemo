@@ -24,7 +24,7 @@ public class YinlianHttpRequestUrl {
     public static String TIMEUPDATEURL = HEARTHOST + File.separator + "Heart/HeartDetection";
     public static String DIZUOUPDATEURL = HEARTHOST + File.separator + "Heart/HeartDetection";
 
-
+    public static String TEST_RESULT_UPLOAD_URL = "";
     static {
         String isMainService = SavePasswd.getInstace().getIp(SavePasswd.ISMAINSERVICE,SavePasswd.OPEN);
         boolean isMain = isMainService.equals(SavePasswd.OPEN) ? true : false;

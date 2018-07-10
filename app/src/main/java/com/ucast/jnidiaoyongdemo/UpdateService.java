@@ -238,7 +238,7 @@ public class UpdateService extends Service {
             @Override
             public void onSuccess(String result) {
                 BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
-                if(base.getMsgType().equals("Success") && base.getData() != null && !base.getData().equals("")){
+                if(base.getMsgType().equals(BaseHttpResult.SUCCESS) && base.getData() != null && !base.getData().equals("")){
                     HeartBeatResult heartBeatResult = JSON.parseObject(base.getData(),HeartBeatResult.class);
                     boolean isCloseModle = heartBeatResult.IsOpenPrintModel.equals(SavePasswd.CLOSEPRINT);
                     setIsClosePrintMode(isCloseModle);

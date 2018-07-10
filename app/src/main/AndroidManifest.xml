@@ -85,6 +85,7 @@
         <activity
             android:name=".testActs.TestMainActivity"
             android:label="@string/title_activity_test_main"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

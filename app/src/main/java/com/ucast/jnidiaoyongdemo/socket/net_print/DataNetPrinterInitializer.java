@@ -2,7 +2,6 @@ package com.ucast.jnidiaoyongdemo.socket.net_print;
 
 
 import com.ucast.jnidiaoyongdemo.socket.MessageCallback.IMsgCallback;
-import com.ucast.jnidiaoyongdemo.socket.MessageCallback.ReplyToNetPrintCallbackHandle;
 import com.ucast.jnidiaoyongdemo.socket.MessageProtocol.NetPrintPackage;
 
 import java.util.concurrent.TimeUnit;

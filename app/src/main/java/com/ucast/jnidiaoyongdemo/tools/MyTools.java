@@ -125,8 +125,8 @@ public class MyTools {
         }
         reader.close();
         return fileData.toString();
-    }/** Get the STB MacAddress*/
-
+    }
+    /** Get the STB MacAddress*/
     public static String getMacAddress(){
         try {
             return loadFileAsString("/sys/class/net/eth0/address") .toUpperCase().substring(0, 17).replace(':','-');
@@ -249,11 +249,11 @@ public class MyTools {
         one.setMsg_create_time(MyTools.millisToDateString(System.currentTimeMillis()));
         UploadDataQueue.addOneDataToList(one);
     }
-    public static void uploadDataAndFileWithURLByQueue(String data,String path,String url){
+    public static void uploadDataAndFileWithURLByQueue(String data,String path){
         UploadData one = new UploadData();
         one.setType(UploadData.DATA_TYPE);
         one.setPath(path);
-        one.setUpLoadURL(url);
+        one.setUpLoadURL(YinlianHttpRequestUrl.UPLOADBASE64URL);
         one.setData(data);
         one.setMsg_create_time(MyTools.millisToDateString(System.currentTimeMillis()));
         UploadDataQueue.addOneDataToList(one);
@@ -299,10 +299,10 @@ public class MyTools {
     public static void handleTicket(String result){
         EventBus.getDefault().postSticky(result);
         BaseHttpResult base = JSON.parseObject(result, BaseHttpResult.class);
-        if (base.getMsgType().equals("Success"))
+        if (base.getMsgType().equals(BaseHttpResult.SUCCESS))
             UploadDataQueue.sendNextByResult(true);
 
-        if (base.getMsgType().equals("Success") && base.getData() != null && !base.getData().equals("")){
+        if (base.getMsgType().equals(BaseHttpResult.SUCCESS) && base.getData() != null && !base.getData().equals("")){
             TicketMsgResult ticketMsgResult = JSON.parseObject(base.getData(),TicketMsgResult.class);
             double moneyD = Double.parseDouble(ticketMsgResult.getAmount());
             String printMsg = ticketMsgResult.getStr();

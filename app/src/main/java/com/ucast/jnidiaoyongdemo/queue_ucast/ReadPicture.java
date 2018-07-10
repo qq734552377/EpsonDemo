@@ -22,6 +22,8 @@ public class ReadPicture {
 
     private boolean _mDispose;
 
+    private int ONE_PAKGE_COUNT = 960;
+
     private ArrayQueue<BitmapWithOtherMsg> _mQueues = new ArrayQueue<BitmapWithOtherMsg>(0x400);
 
     // Methods
@@ -138,7 +140,7 @@ public class ReadPicture {
     }
 
     private int PackageTotal(int data_size) {
-        return data_size % 960 == 0 ? data_size / 960 : (data_size / 960) + 1;
+        return data_size % ONE_PAKGE_COUNT == 0 ? data_size / ONE_PAKGE_COUNT : (data_size / ONE_PAKGE_COUNT) + 1;
     }
 
     private PictureModel WholeBytes(byte[] btData) {
@@ -148,22 +150,22 @@ public class ReadPicture {
 
         byte[] btHead = HeadBytes(package_total);//包头
         PictureModel model = new PictureModel();
-        int sum = btData.length % 960;
+        int sum = btData.length % ONE_PAKGE_COUNT;
         byte[] sum_L_H = new byte[2];
         sum_L_H[0] = (byte) ((sum + 4) & 0Xff);
         sum_L_H[1] = (byte) (((sum + 4) & 0Xff00) >> 8);
         int t = 0;
-        for (t = 0; t < btData.length / 960; t++) {
-            byte[] content_senf = join(btHead, content_send_data(btData, t * 960, 960));
+        for (t = 0; t < btData.length / ONE_PAKGE_COUNT; t++) {
+            byte[] content_senf = join(btHead, content_send_data(btData, t * ONE_PAKGE_COUNT, ONE_PAKGE_COUNT));
             content_senf[8 + 1] = (byte) ((t + 1) & 0Xff);
             content_senf[9 + 1] = (byte) (((t + 1) & 0Xff00) >> 8);
-            content_senf[4 + 1] = (byte) 0xc4;
-            content_senf[5 + 1] = (byte) 0x03;
+            content_senf[4 + 1] = (byte) ((ONE_PAKGE_COUNT + 4) & 0Xff);
+            content_senf[5 + 1] = (byte) (((ONE_PAKGE_COUNT + 4) & 0Xff00) >> 8);
 
             model.BufferPicture.add(Common.pakageOneProtocol(content_senf));
         }
-        if (btData.length % 960 != 0) {
-            byte[] content_senf = join(btHead, content_send_data(btData, t * 960, sum));
+        if (btData.length % ONE_PAKGE_COUNT != 0) {
+            byte[] content_senf = join(btHead, content_send_data(btData, t * ONE_PAKGE_COUNT, sum));
             content_senf[8 + 1] = (byte) ((t + 1) & 0Xff);
             content_senf[9 + 1] = (byte) (((t + 1) & 0Xff00) >> 8);
             content_senf[4 + 1] = sum_L_H[0];

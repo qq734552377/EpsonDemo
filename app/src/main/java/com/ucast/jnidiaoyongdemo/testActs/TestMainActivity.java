@@ -13,18 +13,23 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.Config;
 import com.ucast.jnidiaoyongdemo.Model.ReadPictureManage;
 import com.ucast.jnidiaoyongdemo.R;
 import com.ucast.jnidiaoyongdemo.Serial.SerialTest;
 import com.ucast.jnidiaoyongdemo.erweima.view.mysaomiao.CaptureActivity;
+import com.ucast.jnidiaoyongdemo.jsonObject.BaseHttpResult;
 import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyDialog;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
+import com.ucast.jnidiaoyongdemo.tools.ResponseEntity;
 import com.ucast.jnidiaoyongdemo.tools.WiFiUtil;
 import com.ucast.jnidiaoyongdemo.tools.WifiConnect;
+import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
 import com.ucast.jnidiaoyongdemo.xutilEvents.MsCardEvent;
 import com.ucast.jnidiaoyongdemo.xutilEvents.Serial_huihuanEvent;
 import com.ucast.jnidiaoyongdemo.xutilEvents.WIfiEvent;
@@ -32,6 +37,8 @@ import com.ucast.jnidiaoyongdemo.xutilEvents.WIfiEvent;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.xutils.common.Callback;
+import org.xutils.http.RequestParams;
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.Event;
 import org.xutils.view.annotation.ViewInject;
@@ -44,6 +51,8 @@ import java.util.concurrent.TimeUnit;
 
 @ContentView(R.layout.activity_test_main)
 public class TestMainActivity extends BaseNavActivity {
+    public final String TEST_TIME= "test_time";
+    public final String DEVICE_ID= "device_id";
     public final String BLUEBOOTH_TEST= "bluetooth";
     public final String WIFI= "wifi";
     public final String TWO_ETH= "two_eth";
@@ -70,6 +79,7 @@ public class TestMainActivity extends BaseNavActivity {
 
     public ProgressDialog progressDialog;
     public ProgressDialog msProgressDialog;
+    public ProgressDialog uploadResultProgressDialog;
     public Dialog moneyboxDialog;
     public Dialog printerboxDialog;
     public Dialog usb_p_Dialog;
@@ -105,6 +115,7 @@ public class TestMainActivity extends BaseNavActivity {
         wifiConnect=new WifiConnect(manager);
         progressDialog = MyDialog.createProgressDialog(this,"测试中...");
         msProgressDialog = MyDialog.createProgressDialog(this,"磁条卡测试，请刷卡");
+        uploadResultProgressDialog = MyDialog.createProgressDialog(this,"正在上传测试结果请稍等...");
         for (int i = 0; i < allTestItems.length; i++) {
             save.save(allTestItems[i],TEST_NO);
         }
@@ -169,6 +180,7 @@ public class TestMainActivity extends BaseNavActivity {
     //保存并退出
     @Event(R.id.bt_save_exit)
     private void save_exit(View v){
+        upLoadTestResult();
         StringBuilder sb = new StringBuilder();
         sb.append("测试时间:" + MyTools.millisToDateString(System.currentTimeMillis()) + "\n");
         sb.append("设备MAC:" + Config.DEVICE_ID + "\n");
@@ -178,7 +190,6 @@ public class TestMainActivity extends BaseNavActivity {
         }
         String path = Config.TESTRESULTDIR + "/测试结果_" + Config.DEVICE_ID + ".txt";
         MyTools.writeToFileNoappend(path,sb.toString());
-        this.finish();
     }
 
     //测试蓝牙
@@ -417,16 +428,25 @@ public class TestMainActivity extends BaseNavActivity {
         switch (type){
             case 1:
                 msFlag = 0;
-                if (msg != null && !msg.equals(""))
+                if (msg != null && !msg.equals("")) {
                     msFlag += 1;
+                    return;
+                }
+                showToast("1轨没数据");
                 break;
             case 2:
-                if (msg != null && !msg.equals(""))
+                if (msg != null && !msg.equals("")) {
                     msFlag += 1;
+                    return;
+                }
+                showToast("2轨没数据");
                 break;
             case 3:
-                if (msg != null && !msg.equals(""))
+                if (msg != null && !msg.equals("")) {
                     msFlag += 1;
+                }else {
+                    showToast("3轨没数据");
+                }
                 boolean isOK = false;
                 if (msFlag == 3)
                     isOK = true;
@@ -527,6 +547,46 @@ public class TestMainActivity extends BaseNavActivity {
         }
     }
 
+    public void upLoadTestResult(){
+        if ( !MyTools.isNetworkAvailable(ExceptionApplication.getInstance())){
+            showToast("网络不可用，请连接网络！");
+            return;
+        }
+        RequestParams params = new RequestParams(YinlianHttpRequestUrl.TEST_RESULT_UPLOAD_URL);
+        params.addBodyParameter(TEST_TIME,MyTools.millisToDateString(System.currentTimeMillis()));
+        params.addBodyParameter(DEVICE_ID,Config.DEVICE_ID);
+        for (int i = 0; i < allTestItems.length; i++) {
+            String result = save.getIp(allTestItems[i],TEST_NO);
+            params.addBodyParameter(allTestItems[i],result);
+        }
+        uploadResultProgressDialog.show();
+        x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
 
+                @Override
+                public void onSuccess(ResponseEntity result) {
+                    BaseHttpResult base = JSON.parseObject(result.getResult(), BaseHttpResult.class);
+                    if(base.getMsgType().equals(BaseHttpResult.SUCCESS)){
+                        showToast("上传测试结果成功");
+                        TestMainActivity.this.finish();
+                    }
+                }
+
+                @Override
+                public void onError(Throwable ex, boolean isOnCallback) {
+                    showToast("上传测试结果失败");
+                }
+
+                @Override
+                public void onCancelled(CancelledException cex) {
+
+                }
+
+                @Override
+                public void onFinished() {
+                    uploadResultProgressDialog.dismiss();
+                }
+        });
+
+    }
 
 }

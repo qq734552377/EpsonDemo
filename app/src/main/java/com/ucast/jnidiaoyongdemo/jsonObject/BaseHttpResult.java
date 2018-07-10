@@ -4,6 +4,8 @@ package com.ucast.jnidiaoyongdemo.jsonObject;
  * Created by pj on 2018/4/17.
  */
 public class BaseHttpResult {
+    public static String SUCCESS = "Success";
+
     private String Data;
     private String Info;
     private String MsgType;

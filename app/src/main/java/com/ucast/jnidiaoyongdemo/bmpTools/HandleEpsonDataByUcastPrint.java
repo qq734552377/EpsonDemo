@@ -45,7 +45,7 @@ public class HandleEpsonDataByUcastPrint {
 
             path = SomeBitMapHandleWay.compoundOneBitPicWithBimaps(bmps);
             if (path != null && !path.equals("") && isUpload){
-                MyTools.uploadDataAndFileWithURLByQueue(goodPrintdatas.get(0).datas,path , YinlianHttpRequestUrl.UPLOADBASE64URL);
+                MyTools.uploadDataAndFileWithURLByQueue(goodPrintdatas.get(0).datas,path);
             }
         } catch (Exception e) {
             e.printStackTrace();
