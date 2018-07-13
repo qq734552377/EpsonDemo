@@ -529,6 +529,8 @@ public class TestMainActivity extends BaseNavActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (data == null)
+            return;
         String r = "";
         boolean isOK;
         switch (resultCode) {

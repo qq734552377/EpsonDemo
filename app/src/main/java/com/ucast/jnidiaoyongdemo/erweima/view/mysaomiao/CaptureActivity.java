@@ -210,6 +210,11 @@ public class CaptureActivity extends Activity implements Callback {
         CaptureActivity.this.finish();
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        closeAc(CAMERAID,"");
+    }
 
     private void initBeepSound() {
         if (playBeep && mediaPlayer == null) {

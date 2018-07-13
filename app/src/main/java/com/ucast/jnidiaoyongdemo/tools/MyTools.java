@@ -330,14 +330,18 @@ public class MyTools {
                     if (strBmp != null)
                         ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(strBmp, false));
                     if (linkBmp != null)
-                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(linkBmp, true));
+                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(linkBmp, false));
                 }
                 if (bmpUrlMsg != null && !bmpUrlMsg.equals("")){
                     String path = isExitInSdcard(bmpUrlMsg);
                     if (path != null){
                         ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path), true));
+                        return;
                     }
                 }
+                if(strBmp == null && linkBmp == null)
+                    return;
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(true));
             }catch (Exception e){
 
             }
