@@ -134,6 +134,7 @@ public class ListPictureQueue {
                 ExceptionApplication.gLogger.info(" 发送当前的包数超过总包数---> " + curIndex + " package");
                 return;
             }
+            info.setCurtNum(curIndex + 1);//假设送出的一包没有回应时 再次自增长送出数据 改：2018/07/23
         }
         byte[] str = info.BufferPicture.get(curIndex);
         info.setOutTime(SystemClock.elapsedRealtime());
