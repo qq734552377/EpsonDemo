@@ -59,6 +59,8 @@
             android:name=".erweima.view.mysaomiao.CaptureActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
+            android:enabled="true"
+            android:exported="true"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             android:windowSoftInputMode="stateAlwaysHidden" />
 

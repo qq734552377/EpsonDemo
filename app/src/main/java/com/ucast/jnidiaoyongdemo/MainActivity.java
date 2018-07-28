@@ -122,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
         EventBus.getDefault().register(this);
 //        MyTools.setCameraFixed();
 //        startTestSerial();
+        startUcastApkLockService();
 
     }
     public void startTestSerial(){
@@ -140,7 +141,15 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(intent, type);
     }
 
-
+    public void startUcastApkLockService(){
+        try {
+            Intent intent = new Intent();
+            intent.setClassName("com.ucast.applock_service","com.ucast.applock_service.MainActivity");
+            startActivity(intent);
+        }catch (Exception e){
+            Toast.makeText(this, "没有安装ucast_apklock", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     public void getDataBaseShow() {
         String isOpenMoneyBox = SavePasswd.getInstace().readxml(SavePasswd.ISAUTOMONEYBOX,SavePasswd.OPEN);
