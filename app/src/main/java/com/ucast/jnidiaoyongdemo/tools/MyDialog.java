@@ -91,7 +91,7 @@ public class MyDialog {
 
     public static Dialog showUpdateResult(String msg){
         AlertDialog.Builder builder=new AlertDialog.Builder(ExceptionApplication.getInstance());
-        builder.setTitle("更新提示");
+        builder.setTitle("提示");
         builder.setMessage(msg);
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override

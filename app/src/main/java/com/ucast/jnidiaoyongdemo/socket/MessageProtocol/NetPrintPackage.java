@@ -2,6 +2,7 @@ package com.ucast.jnidiaoyongdemo.socket.MessageProtocol;
 
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.ucast.jnidiaoyongdemo.Model.BitmapWithOtherMsg;
 import com.ucast.jnidiaoyongdemo.Model.ByteArrCache;
@@ -18,7 +19,13 @@ import com.ucast.jnidiaoyongdemo.tools.ExceptionApplication;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
 import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
+import com.ucast.jnidiaoyongdemo.xutilEvents.MoneyBoxEvent;
+import com.ucast.jnidiaoyongdemo.xutilEvents.TishiMsgEvent;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.File;
+import java.security.spec.ECField;
 import java.util.List;
 
 import io.netty.channel.Channel;
@@ -40,6 +47,12 @@ public class NetPrintPackage extends Package {
 
     @Override
     public void Import(byte[] buffer, int Offset, int count) throws Exception {
+        if(buffer[0] == 0x40 && buffer[buffer.length - 1] == 0x24){
+            String value = new String(buffer);
+            handleProtocol(value);
+            return;
+        }
+
         cache.jointBuffer(buffer);
         while (cache.getOffSet() > 0) {
             int startIndex = 0 ;
@@ -61,6 +74,33 @@ public class NetPrintPackage extends Package {
         }
     }
 
+    public void handleProtocol(String value){
+        String msg = value.substring(1, value.length() - 1);
+        String[] item = msg.split(",");
+        switch (item[0]) {
+            //打印机图片地址
+            case "2100":
+                String path = item[1].trim();
+                boolean isCutPaper = item[2].trim().equals("1");
+                File f = new File(path);
+                if (!f.exists()){
+                    EventBus.getDefault().post(new TishiMsgEvent(path + " 文件不存在！"));
+                    return;
+                }
+                ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(BitmapFactory.decodeFile(path),isCutPaper));
+                try {
+//                    Thread.sleep(1500);
+//                    EventBus.getDefault().post(new MoneyBoxEvent(false));
+
+                }catch (Exception e){
+
+                }
+                break;
+            default:
+                break;
+        }
+
+    }
 
     public MessageBase MessageRead(String value) throws Exception {
        return null;

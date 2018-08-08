@@ -39,6 +39,7 @@ import com.ucast.jnidiaoyongdemo.socket.net_print.NioNetPrintServer;
 import com.ucast.jnidiaoyongdemo.tools.MyDialog;
 import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
+import com.ucast.jnidiaoyongdemo.xutilEvents.TishiMsgEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,9 +61,10 @@ public class UpdateService extends Service {
 
     private boolean connected;
 
-    private static final long MONEYBOXTISHITIME = 1000L * 12;
+    private static final long MONEYBOXTISHITIME = 1000L * 8;
     private static long oldMoneyBoxTime ;
     private static Dialog moneyBoxDialog;
+    private Dialog msgDialog;
 
     @Nullable
     @Override
@@ -150,6 +152,11 @@ public class UpdateService extends Service {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void showTishiMsg(TishiMsgEvent event){
+        msgDialog = MyDialog.showUpdateResult(event.getMsg());
+        msgDialog.show();
+    }
 
     /**
      * 当服务被杀死时重启服务

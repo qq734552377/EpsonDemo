@@ -324,11 +324,11 @@ public class MyTools {
                 Bitmap linkBmp = null;
                 if (printMsg != null && !printMsg.equals("")){
                     strBmp = EpsonPicture.getBitMapByStringReturnBigBitmap(printMsg);
+                    if (strBmp != null)
+                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(strBmp, false));
                 }
                 if (linkMsg != null && !linkMsg.equals("")){
                     linkBmp = MyTools.generateBitmap(linkMsg, SomeBitMapHandleWay.PRINT_WIDTH,SomeBitMapHandleWay.PRINT_WIDTH);
-                    if (strBmp != null)
-                        ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(strBmp, false));
                     if (linkBmp != null)
                         ReadPictureManage.GetInstance().GetReadPicture(0).Add(new BitmapWithOtherMsg(linkBmp, false));
                 }
