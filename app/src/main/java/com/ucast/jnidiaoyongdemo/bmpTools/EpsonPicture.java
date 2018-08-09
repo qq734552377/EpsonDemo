@@ -834,8 +834,11 @@ public class EpsonPicture {
                         continue;
                     }
                     int a = b[i * w + j + s];
-                    int aa = a & 0xff;
-                    if (aa != 255) {
+                    int red = Color.red(a);
+                    int green = Color.green(a);
+                    int blue = Color.blue(a);
+                    int gray =(int) (red*0.299 + green*0.587 + blue*0.114);
+                    if (gray < 150) {
                         value |= 1 << s;
                     }
                 }
