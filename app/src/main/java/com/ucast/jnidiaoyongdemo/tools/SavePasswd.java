@@ -24,17 +24,19 @@ public class SavePasswd {
                     "/UcastSetting.xml";
 
     public final static String XMLSTARTTAG = "setting";
-    public final static String ISOPENPRINT = "isopenprint";
-    public final static String ISAUTOMONEYBOX = "isautomoneybox";
-    public final static String ISMAINSERVICE = "ismainservice";
-    public final static String ISNETPRINTUPLOADTOSERVICE = "isnetprintuploadtoservice";
+    public final static String ISOPENPRINT = "isopenprint";//是否开启打印功能
+    public final static String ISAUTOMONEYBOX = "isautomoneybox";//是否自动打开钱箱
+    public final static String ISMAINSERVICE = "ismainservice";//是否上传到主服务器
+    public final static String BMPUPLOADHOST = "bmpuploadhost";//图片的上传主机地址
+    public final static String HEARTBEATHOST = "heartbeathost";//心跳上传的主机地址
+    public final static String ISNETPRINTUPLOADTOSERVICE = "isnetprintuploadtoservice";//网络打印的图片是否上传服务器
     public final static String OPENPRINT = "open";
     public final static String CLOSEPRINT = "close";
     public final static String OPEN = "open";
     public final static String CLOSE = "close";
 
 
-    private static String [] xmlKeys = {ISOPENPRINT,ISAUTOMONEYBOX,ISNETPRINTUPLOADTOSERVICE};
+    private static String [] xmlKeys = {ISOPENPRINT,ISAUTOMONEYBOX,ISNETPRINTUPLOADTOSERVICE,BMPUPLOADHOST,HEARTBEATHOST};
 
 
     private SavePasswd() {
@@ -146,10 +148,11 @@ public class SavePasswd {
                 }
                 eventType = parser.next(); // 获得下一个事件类型
             }
+            fis.close();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            return value == null ? defaultValue : value;
+            return (value == null || value.equals("") )? defaultValue : value;
         }
 
     }

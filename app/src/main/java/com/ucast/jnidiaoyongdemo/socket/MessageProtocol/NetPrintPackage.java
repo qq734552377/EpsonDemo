@@ -67,7 +67,7 @@ public class NetPrintPackage extends Package {
                 break;
             int len = endIndex + 2;
             byte[] ong_Print_msg = cache.getOneDataFromBuffer(startIndex,len);
-            String netPrinterUploadStr = SavePasswd.getInstace().readxml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.OPEN);
+            String netPrinterUploadStr = SavePasswd.getInstace().readxml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.CLOSE);
             boolean isNotUpload = netPrinterUploadStr.equals(SavePasswd.CLOSE);
             HandleEpsonDataByUcastPrint.serialString(ong_Print_msg,!isNotUpload);
             cache.cutBuffer();

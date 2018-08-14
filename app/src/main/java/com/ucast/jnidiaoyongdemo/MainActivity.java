@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()) {
             case R.id.settings:
-                Toast.makeText(this,"setttings",Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, SettingActivity.class));
                 break;
             case R.id.test_device:
                 startActivity(new Intent(this, TestMainActivity.class));

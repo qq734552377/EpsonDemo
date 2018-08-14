@@ -11,10 +11,10 @@ import java.io.File;
 public class YinlianHttpRequestUrl {
 //    public static final String HEART_BEAT_HOST = "http://192.168.0.30:12907";
 //    public static final String HEART_BEAT_HOST = "http://192.168.0.56:12907";
-    public static final String ANALYZEHOST = "http://58.246.122.118:12103";
-    public static final String ANALYZEHOST_TEST = "http://58.246.122.118:12888";
-    public static final String HEART_BEAT_HOST = "http://58.246.122.118:12101";
-    public static final String HEART_BEAT_HOST_TEST = "http://58.246.122.118:12890";
+    public static String ANALYZEHOST = "http://58.246.122.118:12103";
+    public static String ANALYZEHOST_TEST = "http://58.246.122.118:12888";
+    public static String HEART_BEAT_HOST = "http://58.246.122.118:12101";
+    public static String HEART_BEAT_HOST_TEST = "http://58.246.122.118:12890";
 
     public static String BMPHOST = ANALYZEHOST;
     public static String HEARTHOST = HEART_BEAT_HOST;
@@ -28,6 +28,12 @@ public class YinlianHttpRequestUrl {
     static {
         String isMainService = SavePasswd.getInstace().getIp(SavePasswd.ISMAINSERVICE,SavePasswd.OPEN);
         boolean isMain = isMainService.equals(SavePasswd.OPEN) ? true : false;
+        String pic_host = SavePasswd.getInstace().readxml(SavePasswd.BMPUPLOADHOST,ANALYZEHOST);
+        String heartbeat_host = SavePasswd.getInstace().readxml(SavePasswd.HEARTBEATHOST,HEART_BEAT_HOST);
+        if (!pic_host.equals(ANALYZEHOST))
+            ANALYZEHOST = pic_host;
+        if (!heartbeat_host.equals(HEART_BEAT_HOST))
+            HEART_BEAT_HOST = heartbeat_host;
         if (isMain){
             setMainServiceUrl();
         }else {

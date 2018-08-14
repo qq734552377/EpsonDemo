@@ -120,11 +120,11 @@ public class UpdateService extends Service {
         NioNetPrintServer netPrintServer = new NioNetPrintServer();
         new Thread(netPrintServer).start();
 
-        String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.CLOSEPRINT);
+        String isOpenPrint = SavePasswd.getInstace().readxml(SavePasswd.ISOPENPRINT,SavePasswd.OPENPRINT);
         boolean isClose = isOpenPrint.equals(SavePasswd.CLOSEPRINT);
         setIsClosePrintMode(isClose);
 
-        String netPrintUploadstr = SavePasswd.getInstace().readxml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.OPEN);
+        String netPrintUploadstr = SavePasswd.getInstace().readxml(SavePasswd.ISNETPRINTUPLOADTOSERVICE,SavePasswd.CLOSE);
         boolean isCloseNetPrintUpload = netPrintUploadstr.equals(SavePasswd.CLOSE);
         setCloseNetPrinterUploadToService(isCloseNetPrintUpload);
 
