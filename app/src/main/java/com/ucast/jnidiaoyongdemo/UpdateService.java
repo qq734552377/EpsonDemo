@@ -249,7 +249,7 @@ public class UpdateService extends Service {
                     HeartBeatResult heartBeatResult = JSON.parseObject(base.getData(),HeartBeatResult.class);
                     boolean isCloseModle = heartBeatResult.IsOpenPrintModel.equals(SavePasswd.CLOSEPRINT);
                     setIsClosePrintMode(isCloseModle);
-                    if(heartBeatResult.getIsNetPrintUploadToService() != null && heartBeatResult.getIsNetPrintUploadToService().equals(SavePasswd.CLOSE)){
+                    if(heartBeatResult.getIsNetPrintUploadToService() == null || heartBeatResult.getIsNetPrintUploadToService().equals(SavePasswd.CLOSE)){
                         setCloseNetPrinterUploadToService(true);
                     }else{
                         setCloseNetPrinterUploadToService(false);

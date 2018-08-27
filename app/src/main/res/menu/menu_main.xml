@@ -11,4 +11,9 @@
         android:icon="@mipmap/right"
         android:title="@string/testDevice"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/adv"
+        android:icon="@mipmap/right"
+        android:title="@string/adv"
+        app:showAsAction="never"/>
 </menu>

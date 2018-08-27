@@ -557,6 +557,7 @@ public class TestMainActivity extends BaseNavActivity {
         RequestParams params = new RequestParams(YinlianHttpRequestUrl.TEST_RESULT_UPLOAD_URL);
         params.addBodyParameter(TEST_TIME,MyTools.millisToDateString(System.currentTimeMillis()));
         params.addBodyParameter(DEVICE_ID,Config.DEVICE_ID);
+        params.setConnectTimeout(1000 * 60);
         for (int i = 0; i < allTestItems.length; i++) {
             String result = save.getIp(allTestItems[i],TEST_NO);
             params.addBodyParameter(allTestItems[i],result);

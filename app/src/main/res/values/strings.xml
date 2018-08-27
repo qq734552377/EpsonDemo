@@ -12,6 +12,7 @@
 
     <string name="settings">设置</string>
     <string name="testDevice">设备测试</string>
+    <string name="adv">广告</string>
 
 
     <string-array name="permissions">

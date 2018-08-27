@@ -22,9 +22,12 @@ public class YinlianHttpRequestUrl {
     public static String UPLOADFILEURL = BMPHOST + File.separator + "api/PictureAnalysisUpload";
     public static String UPLOADBASE64URL = BMPHOST + File.separator + "api/TextAnalysisUpload";
     public static String TIMEUPDATEURL = HEARTHOST + File.separator + "Heart/HeartDetection";
+    public static String ADVURL = HEARTHOST + File.separator + "Adv/ProvideAdv";
+
+
     public static String DIZUOUPDATEURL = HEARTHOST + File.separator + "Heart/HeartDetection";
 
-    public static String TEST_RESULT_UPLOAD_URL = "";
+    public static String TEST_RESULT_UPLOAD_URL = "http://192.168.0.124:11175/Defalut/Add";
     static {
         String isMainService = SavePasswd.getInstace().getIp(SavePasswd.ISMAINSERVICE,SavePasswd.OPEN);
         boolean isMain = isMainService.equals(SavePasswd.OPEN) ? true : false;
@@ -45,6 +48,7 @@ public class YinlianHttpRequestUrl {
         UPLOADFILEURL = bmpHost + File.separator + "api/PictureAnalysisUpload";
         UPLOADBASE64URL = bmpHost + File.separator + "api/TextAnalysisUpload";
         TIMEUPDATEURL = heartHOST + File.separator + "Heart/HeartDetection";
+        ADVURL = heartHOST + File.separator + "Adv/ProvideAdv";
     }
 
     public static void setMainServiceUrl(){
@@ -57,6 +61,8 @@ public class YinlianHttpRequestUrl {
     public static void writeToTempFile(){
         MyTools.writeToFile(EpsonPicture.TEMPBITPATH + "/uploadUrl.txt","图片：" + YinlianHttpRequestUrl.UPLOADFILEURL);
         MyTools.writeToFile(EpsonPicture.TEMPBITPATH + "/uploadUrl.txt","文字：" + YinlianHttpRequestUrl.UPLOADBASE64URL);
-        MyTools.writeToFile(EpsonPicture.TEMPBITPATH + "/uploadUrl.txt","心跳" + YinlianHttpRequestUrl.TIMEUPDATEURL);
+        MyTools.writeToFile(EpsonPicture.TEMPBITPATH + "/uploadUrl.txt","心跳：" + YinlianHttpRequestUrl.TIMEUPDATEURL);
+        MyTools.writeToFile(EpsonPicture.TEMPBITPATH + "/uploadUrl.txt","广告：" + YinlianHttpRequestUrl.ADVURL);
+        MyTools.writeToFile(EpsonPicture.TEMPBITPATH + "/uploadUrl.txt","测试结果：" + YinlianHttpRequestUrl.TEST_RESULT_UPLOAD_URL);
     }
 }

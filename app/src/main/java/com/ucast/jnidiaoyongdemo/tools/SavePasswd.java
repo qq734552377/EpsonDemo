@@ -30,6 +30,9 @@ public class SavePasswd {
     public final static String BMPUPLOADHOST = "bmpuploadhost";//图片的上传主机地址
     public final static String HEARTBEATHOST = "heartbeathost";//心跳上传的主机地址
     public final static String ISNETPRINTUPLOADTOSERVICE = "isnetprintuploadtoservice";//网络打印的图片是否上传服务器
+
+    public final static String ADVIMGURL = "adv_img_url";//广告的url
+    public final static String ADVIMGTITLE = "adv_img_title";//广告的title
     public final static String OPENPRINT = "open";
     public final static String CLOSEPRINT = "close";
     public final static String OPEN = "open";

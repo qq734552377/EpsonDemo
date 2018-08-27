@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.os.Message;
 import android.os.RemoteException;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 
 import com.alibaba.fastjson.JSON;
@@ -69,6 +70,26 @@ public class MyTools {
     public static final String ZHENGMIANCAMERAFILEPATH = "/sys/bus/i2c/drivers/ov564x_mipi/vcm";
 
     public MyTools() {
+    }
+
+
+    public static String encode(byte[] bstr) {
+        return Base64.encodeToString(bstr, Base64.DEFAULT);
+    }
+
+
+    /**
+     * 解码
+     *
+     * @param str
+     * @return string
+     */
+    public static byte[] decode(String str) {
+        try {
+            return Base64.decode(str, Base64.DEFAULT);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     public static Date StringToDate(String s) {
@@ -274,6 +295,7 @@ public class MyTools {
         params.addBodyParameter("work_order_image",new File(one.getPath()));
         params.addBodyParameter("Time",one.getMsg_create_time());
         params.addBodyParameter("Imei", Config.DEVICE_ID);
+        params.setConnectTimeout(30 * 1000);
         x.http().post(params, new Callback.CommonCallback<ResponseEntity>() {
             @Override
             public void onSuccess(ResponseEntity o) {

@@ -26,6 +26,7 @@ import com.ucast.jnidiaoyongdemo.testActs.TestMainActivity;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
 import com.ucast.jnidiaoyongdemo.tools.SavePasswd;
 import com.ucast.jnidiaoyongdemo.tools.YinlianHttpRequestUrl;
+import com.ucast.jnidiaoyongdemo.advAct.AdvActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -238,6 +239,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.test_device:
                 startActivity(new Intent(this, TestMainActivity.class));
+                break;
+            case R.id.adv:
+                startActivity(new Intent(this, AdvActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
