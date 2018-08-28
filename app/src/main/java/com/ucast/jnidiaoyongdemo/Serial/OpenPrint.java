@@ -58,7 +58,7 @@ public class OpenPrint {
     public boolean Open() {
         try {
             //实例串口
-            ser = new SerialPort(new File(Path), SerialPort.PRINTER_TYPE ,0);
+            ser = new SerialPort(new File(Path), Config.PrinterSerialType ,0);
             //获取写入流
             intput = ser.getInputStream();
             //获取输出流

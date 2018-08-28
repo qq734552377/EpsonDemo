@@ -2,6 +2,7 @@ package com.ucast.jnidiaoyongdemo.Model;
 
 import android.os.Environment;
 
+import com.ucast.jnidiaoyongdemo.Serial.SerialPort;
 import com.ucast.jnidiaoyongdemo.tools.CrashHandler;
 import com.ucast.jnidiaoyongdemo.tools.MyTools;
 
@@ -19,6 +20,7 @@ public class Config {
     public final static String NETPrintName = "ucast_net_print";
     public final static String KeyboardSerialName = "hidg0";
     public final static String PrinterSerial = "/dev/ttymxc4";
+    public final static int PrinterSerialType = SerialPort.PRINTER_TYPE;
     public final static String KeyboardSerial = "/dev/hidg0";
     public final static String UsbSerial = "/dev/g_printer0";
     public final static int PRINT_BAIDRATE = 115200 * 4;
